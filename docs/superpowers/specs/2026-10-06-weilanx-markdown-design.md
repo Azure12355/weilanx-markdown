@@ -98,6 +98,8 @@ weilanx-markdown/
 
 实现的第一步：验证 VS Code webview 在 `⌘V` 时 `paste` 事件的 `clipboardData` 能否拿到位图和文件。拿不到时，webview 通知扩展端，扩展端读系统剪贴板：macOS 用 `osascript` 把 PNG 数据写到临时文件，Windows 用 PowerShell `Get-Clipboard -Format Image`，Linux 用 `xclip`（可选）。
 
+确定的逻辑推演的效果
+
 ## 4. 字体与排版
 
 默认跟随 VS Code：正文字号等于 `editor.fontSize`；配色使用 VS Code 主题变量（背景、前景、链接、选区、代码块背景），切换主题时实时更新。

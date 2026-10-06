@@ -33,6 +33,9 @@ const zh = {
   copyImagePath: "复制图片路径",
   deleteImage: "删除图片文件和链接",
   openLink: "⌘ + 点击打开链接",
+  modeRead: "锁定:只读,全部渲染",
+  modeLive: "编辑:实时预览",
+  modeSource: "源码",
 };
 
 type Key = keyof typeof zh;
@@ -72,6 +75,9 @@ const en: Record<Key, string> = {
   copyImagePath: "Copy image path",
   deleteImage: "Delete image file and link",
   openLink: "Cmd + click to open",
+  modeRead: "Locked: read-only, fully rendered",
+  modeLive: "Edit: live preview",
+  modeSource: "Source",
 };
 
 let dict: Record<Key, string> = zh;

@@ -280,6 +280,7 @@ export class CheckboxWidget extends WidgetType {
     el.onmousedown = (e) => {
       e.preventDefault();
       e.stopPropagation();
+      if (view.state.readOnly) return;
       // 只改方括号里的那个字符,其余原文不动
       view.dispatch({ changes: { from: this.markerPos + 1, to: this.markerPos + 2, insert: this.checked ? " " : "x" } });
     };

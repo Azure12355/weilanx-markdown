@@ -117,6 +117,26 @@
         "title": "%command.openAsLivePreview%",
         "category": "Weilanx Markdown",
         "icon": "$(open-preview)"
+      },
+      {
+        "command": "weilanxMarkdown.cycleMode",
+        "title": "%command.cycleMode%",
+        "category": "Weilanx Markdown"
+      },
+      {
+        "command": "weilanxMarkdown.modeRead",
+        "title": "%command.modeRead%",
+        "category": "Weilanx Markdown"
+      },
+      {
+        "command": "weilanxMarkdown.modeLive",
+        "title": "%command.modeLive%",
+        "category": "Weilanx Markdown"
+      },
+      {
+        "command": "weilanxMarkdown.modeSource",
+        "title": "%command.modeSource%",
+        "category": "Weilanx Markdown"
       }
     ],
     "keybindings": [
@@ -178,6 +198,12 @@
         "command": "weilanxMarkdown.toggleOutline",
         "key": "ctrl+alt+o",
         "mac": "cmd+alt+o",
+        "when": "activeCustomEditorId == 'weilanxMarkdown.editor' && !sideBarFocus && !panelFocus && !auxiliaryBarFocus && !inQuickOpen"
+      },
+      {
+        "command": "weilanxMarkdown.cycleMode",
+        "key": "ctrl+alt+m",
+        "mac": "cmd+alt+m",
         "when": "activeCustomEditorId == 'weilanxMarkdown.editor' && !sideBarFocus && !panelFocus && !auxiliaryBarFocus && !inQuickOpen"
       }
     ],
@@ -265,6 +291,22 @@
         {
           "command": "weilanxMarkdown.openAsLivePreview",
           "when": "resourceLangId == markdown"
+        },
+        {
+          "command": "weilanxMarkdown.cycleMode",
+          "when": "activeCustomEditorId == 'weilanxMarkdown.editor'"
+        },
+        {
+          "command": "weilanxMarkdown.modeRead",
+          "when": "activeCustomEditorId == 'weilanxMarkdown.editor'"
+        },
+        {
+          "command": "weilanxMarkdown.modeLive",
+          "when": "activeCustomEditorId == 'weilanxMarkdown.editor'"
+        },
+        {
+          "command": "weilanxMarkdown.modeSource",
+          "when": "activeCustomEditorId == 'weilanxMarkdown.editor'"
         }
       ]
     },
@@ -367,6 +409,22 @@
           "default": "",
           "markdownDescription": "%config.export.browserPath%",
           "scope": "machine"
+        },
+        "weilanxMarkdown.defaultMode": {
+          "type": "string",
+          "default": "live",
+          "enum": [
+            "live",
+            "read",
+            "source"
+          ],
+          "enumDescriptions": [
+            "%config.defaultMode.live%",
+            "%config.defaultMode.read%",
+            "%config.defaultMode.source%"
+          ],
+          "markdownDescription": "%config.defaultMode%",
+          "scope": "resource"
         }
       }
     }

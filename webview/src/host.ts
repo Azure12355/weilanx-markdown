@@ -46,6 +46,7 @@ function previewHost(): Host {
     altText: "fileName" as const,
     downloadRemote: false,
     docName: "preview",
+    defaultMode: (new URLSearchParams(location.search).get("mode") as "read" | "live" | "source") ?? "live",
   });
   window.__wmd = {
     text: () => text,

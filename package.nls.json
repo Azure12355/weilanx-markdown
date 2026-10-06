@@ -32,5 +32,13 @@
   "config.layout.lineHeight": "Line height of body text",
   "config.layout.maxWidth": "Maximum text width in px; `0` fills the editor",
   "config.layout.paragraphSpacing": "Height of blank lines between paragraphs (em)",
-  "config.export.browserPath": "Path to a Chrome / Edge executable for PDF export; empty searches automatically"
+  "config.export.browserPath": "Path to a Chrome / Edge executable for PDF export; empty searches automatically",
+  "command.cycleMode": "Cycle Mode (Locked / Edit / Source)",
+  "command.modeRead": "Switch to Locked Mode",
+  "command.modeLive": "Switch to Edit Mode",
+  "command.modeSource": "Switch to Source Mode",
+  "config.defaultMode": "Mode used when a Markdown file is opened",
+  "config.defaultMode.live": "Edit: live preview",
+  "config.defaultMode.read": "Locked: read-only, fully rendered",
+  "config.defaultMode.source": "Source"
 }

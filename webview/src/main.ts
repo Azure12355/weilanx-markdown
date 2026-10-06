@@ -1,5 +1,5 @@
 // webview 入口:CodeMirror 6 编辑器 + 实时预览 + 粘贴图片 + 字体 + 大纲 + 导出
-import { EditorState } from "@codemirror/state";
+import { Compartment, EditorState, Extension } from "@codemirror/state";
 import { EditorView, KeyBinding, keymap, drawSelection, dropCursor, rectangularSelection, highlightSpecialChars } from "@codemirror/view";
 import { defaultKeymap, history, historyKeymap, indentWithTab, redo, undo } from "@codemirror/commands";
 import { syntaxHighlighting, indentOnInput, bracketMatching } from "@codemirror/language";
@@ -27,6 +27,12 @@ app.innerHTML = `
   <aside class="wmd-outline" id="outline"></aside>
   <div class="wmd-main">
     <div class="wmd-toolbar">
+      <div class="wmd-mode" id="mode" role="radiogroup">
+        <button data-mode="read" role="radio"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="10" height="7" rx="2"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg></button>
+        <button data-mode="live" role="radio"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 2.5l3 3L6 13H3v-3z"/><path d="M9 4l3 3"/></svg></button>
+        <button data-mode="source" role="radio"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 4.5L2 8l3.5 3.5M10.5 4.5L14 8l-3.5 3.5M9 3l-2 10"/></svg></button>
+      </div>
+      <span class="wmd-tb-sep"></span>
       <button id="btn-outline" class="wmd-tb" title=""><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M2.5 3.5H4M6.5 3.5H13.5M4.5 8H6M8.5 8H13.5M4.5 12.5H6M8.5 12.5H13.5"/></svg></button>
       <button id="btn-type" class="wmd-tb wmd-tb-aa" title="">Aa</button>
       <button id="btn-export" class="wmd-tb" title=""><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2V10M5 5L8 2L11 5M3 9V13.5H13V9"/></svg></button>
@@ -52,6 +58,36 @@ const hostKeys: KeyBinding[] = inVsCode
 
 let view: EditorView;
 
+// ---------- 三种模式:锁定(只读、全部渲染)/ 编辑(实时预览)/ 源码 ----------
+
+export type Mode = "read" | "live" | "source";
+const modeComp = new Compartment();
+let mode: Mode = "live";
+
+function modeExtensions(m: Mode): Extension {
+  if (m === "read") return [livePreview(true), EditorState.readOnly.of(true), EditorView.editable.of(false)];
+  if (m === "source") return [EditorView.editorAttributes.of({ class: "wmd-source" })];
+  return livePreview(false);
+}
+
+function setMode(m: Mode, focus = true) {
+  mode = m;
+  app.dataset.mode = m;
+  document.querySelectorAll<HTMLElement>("#mode button").forEach((b) => {
+    const on = b.dataset.mode === m;
+    b.classList.toggle("on", on);
+    b.setAttribute("aria-checked", String(on));
+  });
+  if (!view) return;
+  // 切换前后保持阅读位置:记住视口顶部那一行
+  const top = view.lineBlockAtHeight(view.scrollDOM.scrollTop - view.documentTop + view.scrollDOM.getBoundingClientRect().top);
+  view.dispatch({ effects: modeComp.reconfigure(modeExtensions(m)) });
+  requestAnimationFrame(() => {
+    view.dispatch({ effects: EditorView.scrollIntoView(top.from, { y: "start" }) });
+    if (focus && m !== "read") view.focus();
+  });
+}
+
 function createView(text: string) {
   view?.destroy();
   view = new EditorView({
@@ -70,7 +106,7 @@ function createView(text: string) {
         markdown({ base: markdownLanguage, codeLanguages: languages, extensions: [mathExtension] }),
         syntaxHighlighting(classHighlighter),
         keymap.of([...hostKeys, ...markdownKeymap, indentWithTab, ...defaultKeymap]),
-        livePreview(),
+        modeComp.of(modeExtensions(mode)),
         pasteHandlers(),
         syncListener(),
         EditorView.updateListener.of((u) => {
@@ -93,12 +129,13 @@ function createView(text: string) {
 function onMouseDown(e: MouseEvent, v: EditorView): boolean {
   const target = e.target as HTMLElement;
   const link = target.closest<HTMLElement>("[data-href]");
-  if (link && (e.metaKey || e.ctrlKey)) {
+  if (link && (e.metaKey || e.ctrlKey || mode === "read")) {
     e.preventDefault();
     const href = link.dataset.href ?? "";
     if (href) env.post({ type: "openLink", href });
     return true;
   }
+  if (mode === "read") return false;
   const block = target.closest<HTMLElement>(".wmd-table, .wmd-math-block, .wmd-mermaid, .wmd-frontmatter, .wmd-math-inline");
   if (block?.dataset.pos && e.button === 0) {
     e.preventDefault();
@@ -201,6 +238,7 @@ const btnExport = document.getElementById("btn-export")!;
 btnOutline.onclick = toggleOutline;
 btnType.onclick = () => togglePanel(btnType);
 btnExport.onclick = () => toggleExportMenu(btnExport);
+document.querySelectorAll<HTMLElement>("#mode button").forEach((b) => (b.onclick = () => setMode(b.dataset.mode as Mode)));
 if (localStorage.getItem("wmd-outline") !== "0") app.classList.add("wmd-outline-open");
 
 function applyConfig(cfg: NonNullable<typeof env.config>) {
@@ -211,6 +249,8 @@ function applyConfig(cfg: NonNullable<typeof env.config>) {
   btnOutline.title = t("outline");
   btnType.title = t("typography");
   btnExport.title = t("export");
+  const titles: Record<string, string> = { read: t("modeRead"), live: t("modeLive"), source: t("modeSource") };
+  document.querySelectorAll<HTMLElement>("#mode button").forEach((b) => (b.title = titles[b.dataset.mode!]));
   initTypography(cfg.typography, cfg.editor, () => view?.requestMeasure());
 }
 
@@ -220,7 +260,9 @@ host.subscribe((m: ToView) => {
   switch (m.type) {
     case "init":
       applyConfig(m.config);
+      mode = m.config.defaultMode;
       createView(m.text);
+      setMode(mode, false);
       refreshOutline();
       break;
     case "config":
@@ -243,6 +285,7 @@ host.subscribe((m: ToView) => {
 
 function runCommand(c: Extract<ToView, { type: "command" }>["command"]) {
   if (!view) return;
+  if (view.state.readOnly && ["undo", "redo", "bold", "italic", "link", "formatTable"].includes(c)) return;
   switch (c) {
     case "undo":
       undo(view);
@@ -279,6 +322,18 @@ function runCommand(c: Extract<ToView, { type: "command" }>["command"]) {
       break;
     case "formatTable":
       formatTable(view);
+      break;
+    case "cycleMode":
+      setMode(mode === "read" ? "live" : mode === "live" ? "source" : "read");
+      break;
+    case "modeRead":
+      setMode("read");
+      break;
+    case "modeLive":
+      setMode("live");
+      break;
+    case "modeSource":
+      setMode("source");
       break;
   }
 }

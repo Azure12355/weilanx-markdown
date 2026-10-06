@@ -140,6 +140,7 @@ export class MarkdownController {
       altText: img.altText,
       downloadRemote: img.downloadRemote,
       docName: path.basename(uri.fsPath, path.extname(uri.fsPath)),
+      defaultMode: vscode.workspace.getConfiguration("weilanxMarkdown", uri).get<"read" | "live" | "source">("defaultMode", "live"),
     };
   }
 

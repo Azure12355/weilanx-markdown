@@ -1,7 +1,7 @@
 // 实时预览:光标所在的行(多行块为整个块)显示源码,其余位置隐藏标记、渲染成最终效果。
 // 只加装饰,不改文档 —— 文件内容永远等于用户敲进去的字符。
 // 块级部件(图片、表格、公式、Mermaid)会改变行高,必须由 StateField 提供装饰。
-import { EditorState, Range, RangeSet, StateEffect, StateField, Text } from "@codemirror/state";
+import { EditorState, Facet, Range, RangeSet, StateEffect, StateField, Text } from "@codemirror/state";
 import { Decoration, DecorationSet, EditorView } from "@codemirror/view";
 import { ensureSyntaxTree, syntaxTree } from "@codemirror/language";
 import type { SyntaxNode, Tree } from "@lezer/common";
@@ -29,10 +29,13 @@ const focusField = StateField.define<boolean>({
   },
 });
 
+/** 阅读(锁定)模式:任何位置都不显示源码 */
+export const readingMode = Facet.define<boolean, boolean>({ combine: (v) => v.some(Boolean) });
+
 /** 光标覆盖到的行号集合 */
 function activeLines(state: EditorState, focused: boolean): Set<number> {
   const s = new Set<number>();
-  if (!focused) return s;
+  if (!focused || state.facet(readingMode)) return s;
   for (const r of state.selection.ranges) {
     const a = state.doc.lineAt(r.from).number;
     const b = state.doc.lineAt(r.to).number;
@@ -346,7 +349,7 @@ const previewField = StateField.define<{ deco: DecorationSet; key: string }>({
   update(value, tr) {
     const focused = tr.state.field(focusField);
     const key = focused ? [...activeLines(tr.state, true)].join(",") : "";
-    const focusChanged = tr.effects.some((e) => e.is(setFocused));
+    const focusChanged = tr.effects.some((e) => e.is(setFocused)) || tr.startState.facet(readingMode) !== tr.state.facet(readingMode);
     // 文档、语法树或光标所在行变化时才重算
     if (!tr.docChanged && !focusChanged && key === value.key && syntaxTree(tr.state) === syntaxTree(tr.startState)) return value;
     return { deco: build(tr.state, focused), key };
@@ -354,8 +357,9 @@ const previewField = StateField.define<{ deco: DecorationSet; key: string }>({
   provide: (f) => EditorView.decorations.from(f, (v) => v.deco),
 });
 
-export function livePreview() {
+export function livePreview(reading = false) {
   return [
+    readingMode.of(reading),
     focusField,
     previewField,
     EditorView.focusChangeEffect.of((_state, focusing) => setFocused.of(focusing)),

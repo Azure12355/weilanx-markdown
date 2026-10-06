@@ -32,5 +32,13 @@
   "config.layout.lineHeight": "正文行高",
   "config.layout.maxWidth": "正文最大宽度(px),`0` 表示铺满",
   "config.layout.paragraphSpacing": "段落之间空行的高度(em)",
-  "config.export.browserPath": "导出 PDF 用的 Chrome / Edge 可执行文件路径,留空则自动查找"
+  "config.export.browserPath": "导出 PDF 用的 Chrome / Edge 可执行文件路径,留空则自动查找",
+  "command.cycleMode": "切换模式(锁定 / 编辑 / 源码)",
+  "command.modeRead": "切换到锁定模式",
+  "command.modeLive": "切换到编辑模式",
+  "command.modeSource": "切换到源码模式",
+  "config.defaultMode": "打开 Markdown 文件时的默认模式",
+  "config.defaultMode.live": "编辑:实时预览",
+  "config.defaultMode.read": "锁定:只读,全部渲染",
+  "config.defaultMode.source": "源码"
 }

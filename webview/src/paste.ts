@@ -112,6 +112,7 @@ export function pasteHandlers() {
     pendingField,
     EditorView.domEventHandlers({
       paste(e, view) {
+        if (view.state.readOnly) return false;
         const data = e.clipboardData;
         if (!data) return false;
         const files = [...data.files].filter(isImage);
@@ -164,6 +165,7 @@ export function pasteHandlers() {
         return false;
       },
       drop(e, view) {
+        if (view.state.readOnly) return false;
         const dt = e.dataTransfer;
         if (!dt) return false;
         const pos = view.posAtCoords({ x: e.clientX, y: e.clientY }) ?? view.state.selection.main.head;

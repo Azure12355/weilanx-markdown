@@ -18,6 +18,10 @@ export function activate(context: vscode.ExtensionContext) {
     "weilanxMarkdown.exportPdf": "export-pdf",
     "weilanxMarkdown.toggleOutline": "toggleOutline",
     "weilanxMarkdown.formatTable": "formatTable",
+    "weilanxMarkdown.cycleMode": "cycleMode",
+    "weilanxMarkdown.modeRead": "modeRead",
+    "weilanxMarkdown.modeLive": "modeLive",
+    "weilanxMarkdown.modeSource": "modeSource",
   };
   for (const [id, command] of Object.entries(forward)) {
     context.subscriptions.push(vscode.commands.registerCommand(id, () => MarkdownController.active?.runCommand(command)));

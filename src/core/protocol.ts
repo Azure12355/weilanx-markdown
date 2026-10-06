@@ -14,6 +14,8 @@ export interface ViewConfig {
   altText: "empty" | "fileName" | "prompt";
   downloadRemote: boolean;
   docName: string;
+  /** 打开时的模式:锁定 / 编辑 / 源码 */
+  defaultMode: "read" | "live" | "source";
 }
 
 export interface UploadItem {
@@ -46,4 +48,4 @@ export type ToView =
   | { type: "external"; changes: { offset: number; length: number; text: string }[]; length: number }
   | { type: "reset"; text: string }
   | { type: "uploaded"; id: string; markdown?: string; error?: string }
-  | { type: "command"; command: "undo" | "redo" | "bold" | "italic" | "link" | "zoomIn" | "zoomOut" | "zoomReset" | "export-html" | "export-pdf" | "toggleOutline" | "formatTable" };
+  | { type: "command"; command: "undo" | "redo" | "bold" | "italic" | "link" | "zoomIn" | "zoomOut" | "zoomReset" | "export-html" | "export-pdf" | "toggleOutline" | "formatTable" | "cycleMode" | "modeRead" | "modeLive" | "modeSource" };
