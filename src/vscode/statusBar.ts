@@ -1,5 +1,6 @@
 // 底栏字数统计:字数 · 字符数 · 口播时长 · 阅读时长;选中文字时统计选中部分;悬停显示完整指标和平台字数上限
 import * as vscode from "vscode";
+import { MarkdownController } from "./editor";
 import { computeStats, DEFAULT_PLATFORMS, durationSeconds, formatDuration, formatMinutes, PlatformLimit, platformValue, TextStats } from "../core/stats";
 
 export interface StatsSource {
@@ -25,8 +26,6 @@ export class StatsBar {
   static instance: StatsBar | undefined;
   private readonly item: vscode.StatusBarItem;
   private timer: ReturnType<typeof setTimeout> | undefined;
-  /** 当前实时预览编辑器提供的数据源(没有时退回到普通文本编辑器) */
-  private custom: (() => StatsSource | null) | null = null;
   private cache: { key: string; stats: TextStats } | null = null;
   private last: { doc: TextStats; sel: TextStats | null; rates: Rates; platforms: PlatformLimit[] } | null = null;
 
@@ -42,14 +41,9 @@ export class StatsBar {
       vscode.workspace.onDidChangeTextDocument(() => this.schedule()),
       vscode.workspace.onDidChangeConfiguration((e) => e.affectsConfiguration("weilanxMarkdown.stats") && this.schedule()),
       vscode.window.tabGroups.onDidChangeTabs(() => this.schedule()),
+      vscode.window.tabGroups.onDidChangeTabGroups(() => this.schedule()),
       vscode.commands.registerCommand("weilanxMarkdown.showStats", () => this.showDetails())
     );
-  }
-
-  /** 实时预览编辑器激活 / 失活时调用 */
-  setCustomSource(get: (() => StatsSource | null) | null) {
-    this.custom = get;
-    this.schedule();
   }
 
   schedule() {
@@ -57,9 +51,10 @@ export class StatsBar {
     this.timer = setTimeout(() => this.refresh(), 120);
   }
 
+  /** 数据源:当前激活的实时预览编辑器,否则是普通文本编辑器里的 Markdown */
   private source(): StatsSource | null {
-    const c = this.custom?.();
-    if (c) return c;
+    const c = MarkdownController.active;
+    if (c) return { document: c.document, selections: c.selections };
     const ed = vscode.window.activeTextEditor;
     if (ed && ed.document.languageId === "markdown") {
       return { document: ed.document, selections: ed.selections.map((s) => [ed.document.offsetAt(s.start), ed.document.offsetAt(s.end)] as [number, number]) };
@@ -158,6 +153,16 @@ export class StatsBar {
     }
     md.appendMarkdown(`\n---\n${z ? "点击查看并复制;口播按每分钟 " : "Click to copy a value. Speaking time assumes "}${this.last?.rates.speakCjk}${z ? " 字估算,可在设置里调整" : " CJK chars / min (configurable)"}`);
     return md;
+  }
+
+  /** 集成测试用:当前底栏的文字和是否显示 */
+  snapshot() {
+    return { text: this.item.text, visible: !!this.last };
+  }
+
+  /** 立即刷新(集成测试用,跳过去抖) */
+  refreshNow() {
+    this.refresh();
   }
 
   private async showDetails() {

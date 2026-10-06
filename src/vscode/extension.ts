@@ -3,7 +3,7 @@ import { MarkdownController, MarkdownEditorProvider, ViewCommand } from "./edito
 import { StatsBar } from "./statusBar";
 
 export function activate(context: vscode.ExtensionContext) {
-  new StatsBar(context);
+  const stats = new StatsBar(context);
   context.subscriptions.push(MarkdownEditorProvider.register(context));
 
   // 编辑器内的快捷键和命令:VS Code 会先按自己的快捷键处理按键,所以注册成命令再转发给编辑器
@@ -39,6 +39,15 @@ export function activate(context: vscode.ExtensionContext) {
       if (target) await vscode.commands.executeCommand("vscode.openWith", target, MarkdownEditorProvider.viewType);
     })
   );
+
+  // 给集成测试用的接口
+  return {
+    stats: () => {
+      stats.refreshNow();
+      return stats.snapshot();
+    },
+    activeEditor: () => !!MarkdownController.active,
+  };
 }
 
 export function deactivate() {}

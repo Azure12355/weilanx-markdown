@@ -14,7 +14,7 @@
   --fg: var(--vscode-editor-foreground, #1f2328);
   /* 文字层次 */
   --heading: var(--fg);
-  --text: color-mix(in srgb, var(--fg) 86%, var(--bg));
+  --text: color-mix(in srgb, var(--fg) 93%, var(--bg));
   --muted: color-mix(in srgb, var(--fg) 58%, var(--bg));
   --faint: color-mix(in srgb, var(--fg) 34%, var(--bg));
   /* 强调色 */
@@ -39,7 +39,7 @@
 body.vscode-dark,
 body.vscode-high-contrast {
   --code-ink: #f0a07a;
-  --text: color-mix(in srgb, var(--fg) 90%, var(--bg));
+  --text: color-mix(in srgb, var(--fg) 95%, var(--bg));
 }
 html,
 body,
@@ -49,7 +49,7 @@ body,
   overflow: hidden;
   background: var(--bg);
   color: var(--text);
-  -webkit-font-smoothing: antialiased;
+  /* 不用 antialiased:macOS 上会关掉次像素渲染、字形变细,和 VS Code 编辑器其他地方的字重对不上 */
   text-rendering: optimizeLegibility;
 }
 * {
@@ -284,10 +284,12 @@ body,
 }
 
 /* ---------- 行内 ---------- */
+/* 加粗:中文字体(苹方)最粗只到 Semibold,再加一点描边让加粗和正文拉开差距 */
 .tok-strong,
 .tok-strong * {
   font-weight: 700;
   color: var(--heading);
+  -webkit-text-stroke: 0.25px currentColor;
 }
 .tok-emphasis {
   font-style: italic;
@@ -711,6 +713,7 @@ body.vscode-dark .wmd-code .tok-tagName {
 }
 .wmd-table strong {
   color: var(--heading);
+  -webkit-text-stroke: 0.25px currentColor;
 }
 .wmd-table img {
   max-height: 120px;

@@ -59,18 +59,30 @@ function editorFont(uri: vscode.Uri) {
 }
 
 export class MarkdownController {
-  /** 当前激活的编辑器,快捷键命令转发给它 */
-  static active: MarkdownController | undefined;
+  /** 所有打开着的实时预览编辑器 */
+  static readonly all = new Set<MarkdownController>();
+
+  /**
+   * 当前激活的实时预览编辑器。直接看 VS Code 当前激活的标签页:
+   * 面板刚创建时 panel.active 往往还是 false,而且之后不一定触发 onDidChangeViewState,不能只靠事件记录。
+   */
+  static get active(): MarkdownController | undefined {
+    const input = vscode.window.tabGroups.activeTabGroup.activeTab?.input;
+    if (!(input instanceof vscode.TabInputCustom) || input.viewType !== MarkdownEditorProvider.viewType) return undefined;
+    const key = input.uri.toString();
+    const matches = [...MarkdownController.all].filter((c) => c.document.uri.toString() === key);
+    return matches.find((c) => c.panel.active) ?? matches.find((c) => c.panel.visible) ?? matches[0];
+  }
 
   /** 正在应用 webview 发来的修改:期间收到的文档变化是自己引起的,不回推 */
   private applyingOwn = false;
   /** webview 里的选区(字符偏移),给底栏字数统计用 */
-  private selections: [number, number][] = [];
+  selections: [number, number][] = [];
   private queue: Promise<void> = Promise.resolve();
 
   constructor(
     private readonly context: vscode.ExtensionContext,
-    private readonly document: vscode.TextDocument,
+    readonly document: vscode.TextDocument,
     private readonly panel: vscode.WebviewPanel
   ) {
     const docDir = path.dirname(document.uri.fsPath);
@@ -106,19 +118,12 @@ export class MarkdownController {
       subs
     );
 
-    const activate = () => {
-      MarkdownController.active = this;
-      StatsBar.instance?.setCustomSource(() => (MarkdownController.active === this ? { document, selections: this.selections } : null));
-    };
-    const deactivate = () => {
-      if (MarkdownController.active !== this) return;
-      MarkdownController.active = undefined;
-      StatsBar.instance?.setCustomSource(null);
-    };
-    if (panel.active) activate();
-    panel.onDidChangeViewState((e) => (e.webviewPanel.active ? activate() : deactivate()), null, subs);
+    MarkdownController.all.add(this);
+    StatsBar.instance?.schedule();
+    panel.onDidChangeViewState(() => StatsBar.instance?.schedule(), null, subs);
     panel.onDidDispose(() => {
-      deactivate();
+      MarkdownController.all.delete(this);
+      StatsBar.instance?.schedule();
       subs.forEach((d) => d.dispose());
     });
   }
