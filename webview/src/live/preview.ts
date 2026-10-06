@@ -8,8 +8,10 @@ import type { SyntaxNode, Tree } from "@lezer/common";
 import { frontMatterRange } from "../../../src/core/outline";
 import {
   BulletWidget,
+  CalloutTitleWidget,
   CheckboxWidget,
   CodeHeaderWidget,
+  NumberWidget,
   EmptyWidget,
   FrontMatterWidget,
   HrWidget,
@@ -255,10 +257,23 @@ function decorateNode(c: Ctx, n: SyntaxNode): boolean | void {
   }
 
   if (name === "Blockquote") {
+    // GitHub 提示块:> [!NOTE] / [!TIP] / [!IMPORTANT] / [!WARNING] / [!CAUTION]
+    const firstLine = doc.lineAt(n.from);
+    const alert = /^(\s*>\s*)\[!(note|tip|important|warning|caution)\]/i.exec(firstLine.text);
+    const kind = alert ? alert[2].toLowerCase() : "";
+    const lastNo = doc.lineAt(n.to).number;
     for (let pos = n.from; pos <= n.to; ) {
       const l = doc.lineAt(pos);
-      c.out.push(line("wmd-quote").range(l.from));
+      let cls = "wmd-quote";
+      if (l.number === firstLine.number) cls += " wmd-quote-first";
+      if (l.number === lastNo) cls += " wmd-quote-last";
+      if (kind) cls += ` wmd-callout wmd-callout-${kind}`;
+      c.out.push(line(cls).range(l.from));
       pos = l.to + 1;
+    }
+    if (alert && !isActive(c, firstLine.from, firstLine.to)) {
+      const from = firstLine.from + alert[1].length;
+      add(c, from, from + alert[0].length - alert[1].length, Decoration.replace({ widget: new CalloutTitleWidget(kind) }));
     }
     return;
   }
@@ -276,24 +291,44 @@ function decorateNode(c: Ctx, n: SyntaxNode): boolean | void {
   if (name === "ListItem") {
     const task = n.getChild("Task");
     const listMark = n.getChild("ListMark");
+    if (!listMark) return;
     const active = isActive(c, n.from, n.from);
+    const depth = listDepth(n);
+    const first = doc.lineAt(n.from);
+    // 悬挂缩进:按嵌套层级用 padding 缩进,行首空格隐藏,折行后与正文对齐
+    c.out.push(Decoration.line({ class: "wmd-li", attributes: { style: `--d:${depth}` } }).range(first.from));
+    if (listMark.from > first.from) add(c, first.from, listMark.from, hide);
+    // 同一项里的续行(不含子列表)
+    const subLists = [...childrenOf(n, "BulletList"), ...childrenOf(n, "OrderedList")];
+    for (let pos = first.to + 1; pos <= n.to && pos <= doc.length; ) {
+      const l = doc.lineAt(pos);
+      if (l.text.trim() && !subLists.some((sl) => l.from >= doc.lineAt(sl.from).from && l.from <= sl.to)) {
+        c.out.push(Decoration.line({ class: "wmd-li-cont", attributes: { style: `--d:${depth}` } }).range(l.from));
+        const lead = /^[ \t]*/.exec(l.text)![0].length;
+        if (lead) add(c, l.from, l.from + lead, hide);
+      }
+      pos = l.to + 1;
+    }
+    const afterMark = doc.sliceString(listMark.to, listMark.to + 1) === " " ? listMark.to + 1 : listMark.to;
     if (task) {
       const tm = task.getChild("TaskMarker");
       if (tm) {
         const checked = /x/i.test(doc.sliceString(tm.from, tm.to));
         if (checked) add(c, tm.to, doc.lineAt(tm.from).to, mark("wmd-task-done"));
-        if (!active && listMark) {
+        if (!active) {
           const end = doc.sliceString(tm.to, tm.to + 1) === " " ? tm.to + 1 : tm.to;
           add(c, listMark.from, end, Decoration.replace({ widget: new CheckboxWidget(checked, tm.from) }));
           return;
         }
       }
     }
-    if (listMark && !active && n.parent?.name === "BulletList") {
-      add(c, listMark.from, listMark.to, Decoration.replace({ widget: new BulletWidget(listDepth(n)) }));
-    } else if (listMark && n.parent?.name === "OrderedList") {
-      add(c, listMark.from, listMark.to, mark("wmd-ol-mark"));
+    if (active) {
+      add(c, listMark.from, listMark.to, mark("wmd-list-src"));
+      return;
     }
+    const ordered = n.parent?.name === "OrderedList";
+    const widget = ordered ? new NumberWidget(doc.sliceString(listMark.from, listMark.to)) : new BulletWidget(depth);
+    add(c, listMark.from, afterMark, Decoration.replace({ widget }));
     return;
   }
 

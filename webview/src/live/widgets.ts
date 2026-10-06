@@ -120,13 +120,58 @@ function loadMermaid() {
   return (mermaidLoader ??= import("mermaid").then((m) => m.default));
 }
 
+/** 把 CSS 变量(可能是 color-mix 表达式)解析成浏览器算好的 rgb 颜色 */
+function cssColor(expr: string): string {
+  const probe = document.createElement("span");
+  probe.style.color = expr;
+  probe.style.display = "none";
+  document.body.appendChild(probe);
+  const c = getComputedStyle(probe).color;
+  probe.remove();
+  return toHex(c);
+}
+
+/** 浏览器给出的 rgb() / color(srgb …) 统一转成 #rrggbb(Mermaid 只认常见格式) */
+function toHex(c: string): string {
+  const hex = (n: number) => Math.round(Math.max(0, Math.min(255, n))).toString(16).padStart(2, "0");
+  const srgb = /color\(srgb\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)/.exec(c);
+  if (srgb) return "#" + [srgb[1], srgb[2], srgb[3]].map((v) => hex(Number(v) * 255)).join("");
+  const rgb = /rgba?\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)/.exec(c);
+  if (rgb) return "#" + [rgb[1], rgb[2], rgb[3]].map((v) => hex(Number(v))).join("");
+  return c;
+}
+
+/** Mermaid 的配色跟随编辑器主题:节点用淡强调色、连线用辅助色 */
+function mermaidTheme() {
+  const v = {
+    background: cssColor("var(--bg)"),
+    primaryColor: cssColor("color-mix(in srgb, var(--accent) 12%, var(--bg))"),
+    primaryBorderColor: cssColor("color-mix(in srgb, var(--accent) 55%, var(--bg))"),
+    primaryTextColor: cssColor("var(--heading)"),
+    secondaryColor: cssColor("color-mix(in srgb, #2da44e 12%, var(--bg))"),
+    tertiaryColor: cssColor("var(--surface)"),
+    lineColor: cssColor("var(--muted)"),
+    textColor: cssColor("var(--text)"),
+    edgeLabelBackground: cssColor("var(--bg)"),
+    clusterBkg: cssColor("var(--surface)"),
+    clusterBorder: cssColor("var(--line)"),
+    noteBkgColor: cssColor("color-mix(in srgb, #d4a72c 14%, var(--bg))"),
+    noteBorderColor: cssColor("color-mix(in srgb, #d4a72c 50%, var(--bg))"),
+    noteTextColor: cssColor("var(--text)"),
+    fontFamily: getComputedStyle(document.documentElement).getPropertyValue("--md-font") || "sans-serif",
+    fontSize: "14px",
+    darkMode: isDark(),
+  };
+  return v;
+}
+
 export async function renderMermaid(code: string): Promise<string> {
-  const theme = isDark() ? "dark" : "default";
-  const key = theme + "\u0000" + code;
+  const themeVariables = mermaidTheme();
+  const key = JSON.stringify(themeVariables) + "\u0000" + code;
   const hit = mermaidCache.get(key);
   if (hit) return hit;
   const mermaid = await loadMermaid();
-  mermaid.initialize({ startOnLoad: false, theme, securityLevel: "strict", fontFamily: "inherit" });
+  mermaid.initialize({ startOnLoad: false, theme: "base", themeVariables, securityLevel: "strict", flowchart: { curve: "basis", padding: 14 } });
   const { svg } = await mermaid.render(`wmd-mermaid-${++seq}`, code);
   mermaidCache.set(key, svg);
   return svg;
@@ -261,6 +306,46 @@ export class BulletWidget extends WidgetType {
     const el = document.createElement("span");
     el.className = "wmd-bullet";
     el.textContent = ["•", "◦", "▪"][this.depth % 3];
+    return el;
+  }
+}
+
+export class NumberWidget extends WidgetType {
+  constructor(readonly text: string) {
+    super();
+  }
+  eq(o: NumberWidget) {
+    return o.text === this.text;
+  }
+  toDOM() {
+    const el = document.createElement("span");
+    el.className = "wmd-number";
+    el.textContent = this.text;
+    return el;
+  }
+}
+
+const CALLOUTS: Record<string, { zh: string; en: string; icon: string }> = {
+  note: { zh: "说明", en: "Note", icon: '<circle cx="8" cy="8" r="6.2"/><path d="M8 7.2V11M8 5V5.1"/>' },
+  tip: { zh: "提示", en: "Tip", icon: '<path d="M6 12.5h4M6.5 14.5h3M8 1.8a4.3 4.3 0 0 0-2.6 7.7c.5.4.8 1 .8 1.6V11h3.6v-.1c0-.6.3-1.2.8-1.6A4.3 4.3 0 0 0 8 1.8z"/>' },
+  important: { zh: "重要", en: "Important", icon: '<path d="M2.5 3.5h11v7.5H6l-3.5 2.8z"/><path d="M8 5.5V8M8 9.8v.1"/>' },
+  warning: { zh: "注意", en: "Warning", icon: '<path d="M8 2.2L14.2 13H1.8z"/><path d="M8 6.5V9.3M8 11v.1"/>' },
+  caution: { zh: "警告", en: "Caution", icon: '<path d="M5.4 1.8h5.2l3.6 3.6v5.2l-3.6 3.6H5.4L1.8 10.6V5.4z"/><path d="M8 5v3.5M8 10.6v.1"/>' },
+};
+
+export class CalloutTitleWidget extends WidgetType {
+  constructor(readonly kind: string) {
+    super();
+  }
+  eq(o: CalloutTitleWidget) {
+    return o.kind === this.kind;
+  }
+  toDOM() {
+    const def = CALLOUTS[this.kind] ?? CALLOUTS.note;
+    const el = document.createElement("span");
+    el.className = "wmd-callout-title";
+    const zh = (env.config?.lang ?? "zh").toLowerCase().startsWith("zh");
+    el.innerHTML = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${def.icon}</svg><span>${zh ? def.zh : def.en}</span>`;
     return el;
   }
 }

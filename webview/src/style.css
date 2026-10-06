@@ -1,4 +1,6 @@
-/* 颜色全部取自 VS Code 主题变量,浏览器预览时用后备值;字号、字体、行高、宽度来自 typography.ts 设置的 --md-* 变量 */
+/* Weilanx Markdown 样式。
+   颜色全部由 VS Code 主题变量推导(换主题自动协调),字号 / 字体 / 行高 / 宽度来自 typography.ts 设置的 --md-* 变量。
+   层次:标题用最深的前景色,正文略柔和,辅助信息再浅一档;强调色(链接、列表符号、复选框、引用条)取主题的链接色。 */
 :root {
   --md-font-size: 15px;
   --md-font: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
@@ -10,19 +12,34 @@
 
   --bg: var(--vscode-editor-background, #ffffff);
   --fg: var(--vscode-editor-foreground, #1f2328);
-  --muted: var(--vscode-descriptionForeground, #6b7079);
-  --faint: color-mix(in srgb, var(--fg) 38%, transparent);
-  --link: var(--vscode-textLink-foreground, #2f6feb);
-  --accent: var(--vscode-focusBorder, #2f7bff);
-  --border: var(--vscode-panel-border, var(--vscode-widget-border, rgba(128, 128, 128, 0.25)));
-  --code-bg: var(--vscode-textCodeBlock-background, color-mix(in srgb, var(--fg) 6%, var(--bg)));
-  --block-bg: color-mix(in srgb, var(--fg) 4.5%, var(--bg));
-  --quote: var(--vscode-textBlockQuote-border, color-mix(in srgb, var(--fg) 22%, transparent));
+  /* 文字层次 */
+  --heading: var(--fg);
+  --text: color-mix(in srgb, var(--fg) 86%, var(--bg));
+  --muted: color-mix(in srgb, var(--fg) 58%, var(--bg));
+  --faint: color-mix(in srgb, var(--fg) 34%, var(--bg));
+  /* 强调色 */
+  --accent: var(--vscode-textLink-foreground, #2f6feb);
+  --accent-soft: color-mix(in srgb, var(--accent) 10%, var(--bg));
+  --link: var(--accent);
+  --code-ink: #c2410c;
+  --code-ink-bg: color-mix(in srgb, var(--code-ink) 8%, var(--bg));
+  /* 面与线 */
+  --hair: color-mix(in srgb, var(--fg) 10%, var(--bg));
+  --line: color-mix(in srgb, var(--fg) 16%, var(--bg));
+  --surface: color-mix(in srgb, var(--fg) 3.5%, var(--bg));
+  --surface-2: color-mix(in srgb, var(--fg) 6%, var(--bg));
+  --border: var(--line);
   --sel: var(--vscode-editor-selectionBackground, rgba(47, 123, 255, 0.22));
-  --cursor: var(--vscode-editorCursor-foreground, var(--fg));
+  --cursor: var(--vscode-editorCursor-foreground, var(--accent));
   --pop: var(--vscode-editorWidget-background, var(--bg));
   --hover: var(--vscode-toolbar-hoverBackground, rgba(128, 128, 128, 0.15));
   --ui-font: var(--vscode-font-family, -apple-system, "PingFang SC", sans-serif);
+  --radius: 10px;
+}
+body.vscode-dark,
+body.vscode-high-contrast {
+  --code-ink: #f0a07a;
+  --text: color-mix(in srgb, var(--fg) 90%, var(--bg));
 }
 html,
 body,
@@ -31,12 +48,13 @@ body,
   height: 100%;
   overflow: hidden;
   background: var(--bg);
-  color: var(--fg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 * {
   box-sizing: border-box;
 }
-
 .wmd-root {
   display: flex;
   height: 100%;
@@ -47,10 +65,10 @@ body,
   min-width: 0;
   height: 100%;
 }
-.wmd-editor,
-.wmd-editor .cm-editor {
+.wmd-editor {
   height: 100%;
 }
+
 /* ---------- 工具栏 ---------- */
 .wmd-toolbar {
   position: absolute;
@@ -137,12 +155,13 @@ body,
 /* ---------- 大纲 ---------- */
 .wmd-outline {
   display: none;
-  width: 230px;
+  width: 236px;
   flex-shrink: 0;
   height: 100%;
   overflow-y: auto;
-  padding: 20px 10px 40px 14px;
-  border-right: 1px solid var(--border);
+  padding: 22px 10px 40px 12px;
+  border-right: 1px solid var(--hair);
+  background: color-mix(in srgb, var(--fg) 1.5%, var(--bg));
   font-family: var(--ui-font);
   font-size: 12.5px;
 }
@@ -150,88 +169,113 @@ body,
   display: block;
 }
 .wmd-outline-title {
-  margin: 0 0 10px 6px;
-  font-size: 11px;
+  margin: 0 0 12px 10px;
+  font-size: 10.5px;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--muted);
+  color: var(--faint);
 }
 .wmd-outline-item {
+  position: relative;
   display: block;
-  padding: 4px 8px;
-  border-radius: 6px;
+  padding: 5px 10px;
+  border-radius: 7px;
   color: var(--muted);
   cursor: pointer;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   text-decoration: none;
+  line-height: 1.45;
+  transition: background 0.12s, color 0.12s;
 }
 .wmd-outline-item:hover {
   background: var(--hover);
-  color: var(--fg);
+  color: var(--heading);
 }
 .wmd-outline-item.active {
   color: var(--accent);
-  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  background: var(--accent-soft);
+  font-weight: 600;
+}
+.wmd-outline-item.active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 7px;
+  bottom: 7px;
+  width: 2.5px;
+  border-radius: 2px;
+  background: var(--accent);
 }
 .wmd-outline-item.lv1 {
+  color: var(--heading);
   font-weight: 600;
-  color: var(--fg);
 }
 .wmd-outline-item.lv2 {
-  padding-left: 18px;
+  padding-left: 20px;
 }
 .wmd-outline-item.lv3 {
-  padding-left: 30px;
+  padding-left: 32px;
 }
 .wmd-outline-item.lv4,
 .wmd-outline-item.lv5,
 .wmd-outline-item.lv6 {
-  padding-left: 42px;
+  padding-left: 44px;
+  font-size: 12px;
 }
 .wmd-outline-empty {
-  padding: 6px 8px;
-  color: var(--muted);
+  padding: 6px 10px;
+  color: var(--faint);
 }
 
-/* ---------- 标题 ---------- */
+/* ---------- 标题:上方留白大于下方,让标题和它下面的内容成为一组 ---------- */
 .wmd-h {
   font-family: var(--md-heading-font);
   font-weight: 700;
+  color: var(--heading);
   line-height: 1.35;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.012em;
 }
 .wmd-h1 {
-  font-size: 1.95em;
-  padding-top: 0.5em;
-  padding-bottom: 0.15em;
+  font-size: 2.05em;
+  font-weight: 800;
+  letter-spacing: -0.022em;
+  padding-top: 0.75em;
+  padding-bottom: 0.2em;
 }
 .wmd-h2 {
-  font-size: 1.5em;
-  padding-top: 0.6em;
-  padding-bottom: 0.1em;
+  font-size: 1.55em;
+  padding-top: 1.05em;
+  padding-bottom: 0.32em;
+  margin-bottom: 0.25em;
+  border-bottom: 1px solid var(--hair);
 }
 .wmd-h3 {
-  font-size: 1.25em;
-  padding-top: 0.5em;
+  font-size: 1.27em;
+  padding-top: 0.95em;
+  padding-bottom: 0.1em;
 }
 .wmd-h4 {
   font-size: 1.1em;
-  padding-top: 0.4em;
+  padding-top: 0.8em;
 }
-.wmd-h5,
-.wmd-h6 {
+.wmd-h5 {
   font-size: 1em;
-  padding-top: 0.3em;
+  padding-top: 0.7em;
 }
 .wmd-h6 {
+  font-size: 0.92em;
+  padding-top: 0.7em;
   color: var(--muted);
+  letter-spacing: 0.02em;
 }
-.wmd-h .tok-heading,
-.tok-heading {
-  font-weight: 700;
+/* 编辑标题时露出的 # 用强调色淡显 */
+.wmd-h .tok-meta,
+.wmd-h .tok-processingInstruction {
+  color: color-mix(in srgb, var(--accent) 55%, var(--bg));
+  font-weight: 600;
 }
 .wmd-collapsed {
   height: 0.4em;
@@ -240,8 +284,10 @@ body,
 }
 
 /* ---------- 行内 ---------- */
-.tok-strong {
+.tok-strong,
+.tok-strong * {
   font-weight: 700;
+  color: var(--heading);
 }
 .tok-emphasis {
   font-style: italic;
@@ -249,6 +295,7 @@ body,
 .wmd-strike,
 .tok-strikethrough {
   text-decoration: line-through;
+  text-decoration-color: color-mix(in srgb, var(--fg) 45%, transparent);
   color: var(--muted);
 }
 .tok-meta,
@@ -257,19 +304,27 @@ body,
 }
 .wmd-inline-code {
   font-family: var(--md-code-font);
-  font-size: 0.88em;
-  padding: 0.12em 0.38em;
-  border-radius: 5px;
-  background: var(--code-bg);
+  font-size: 0.86em;
+  padding: 0.14em 0.42em;
+  margin: 0 0.06em;
+  border-radius: 6px;
+  color: var(--code-ink);
+  background: var(--code-ink-bg);
+  border: 1px solid color-mix(in srgb, var(--code-ink) 14%, transparent);
+}
+.wmd-inline-code .tok-meta {
+  color: color-mix(in srgb, var(--code-ink) 50%, var(--bg));
 }
 .wmd-link {
   color: var(--link);
   text-decoration: underline;
-  text-decoration-color: color-mix(in srgb, var(--link) 40%, transparent);
+  text-decoration-thickness: 1px;
+  text-decoration-color: color-mix(in srgb, var(--link) 35%, transparent);
   text-underline-offset: 3px;
   cursor: text;
+  transition: text-decoration-color 0.12s;
 }
-.cm-content:has(.wmd-link:hover) .wmd-link:hover {
+.wmd-link:hover {
   text-decoration-color: var(--link);
 }
 .wmd-link-src,
@@ -282,7 +337,7 @@ body,
 }
 .wmd-math-src {
   font-family: var(--md-code-font);
-  font-size: 0.92em;
+  font-size: 0.9em;
   color: var(--muted);
 }
 
@@ -291,31 +346,52 @@ body,
   line-height: var(--md-blank);
 }
 
-/* ---------- 引用 / 列表 / 分割线 ---------- */
-.wmd-quote {
-  border-left: 3px solid var(--quote);
-  padding-left: 14px !important;
-  color: var(--muted);
+/* ---------- 列表:悬挂缩进,折行后和正文对齐 ---------- */
+.cm-line.wmd-li {
+  padding-left: calc(var(--d, 0) * 1.65em + 1.65em) !important;
+  text-indent: -1.65em;
+}
+.cm-line.wmd-li-cont {
+  padding-left: calc(var(--d, 0) * 1.65em + 1.65em) !important;
+}
+.wmd-li > * {
+  text-indent: 0;
+}
+.wmd-bullet,
+.wmd-number {
+  display: inline-block;
+  width: 1.65em;
+  text-indent: 0;
+  color: var(--accent);
+  user-select: none;
 }
 .wmd-bullet {
-  display: inline-block;
-  width: 1em;
-  color: var(--muted);
   font-weight: 700;
+  padding-left: 0.3em;
 }
-.wmd-ol-mark {
-  color: var(--muted);
+.wmd-number {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  font-size: 0.95em;
+}
+.wmd-list-src {
+  color: var(--accent);
 }
 .wmd-checkbox {
   display: inline-block;
-  width: 1em;
-  height: 1em;
-  margin-right: 0.45em;
-  vertical-align: -0.15em;
-  border: 1.6px solid var(--muted);
-  border-radius: 4px;
+  width: 1.08em;
+  height: 1.08em;
+  margin-right: 0.57em;
+  vertical-align: -0.17em;
+  border: 1.6px solid color-mix(in srgb, var(--fg) 40%, var(--bg));
+  border-radius: 5px;
   cursor: pointer;
   position: relative;
+  text-indent: 0;
+  transition: background 0.12s, border-color 0.12s;
+}
+.wmd-checkbox:hover {
+  border-color: var(--accent);
 }
 .wmd-checkbox.wmd-checked {
   background: var(--accent);
@@ -324,44 +400,99 @@ body,
 .wmd-checkbox.wmd-checked::after {
   content: "";
   position: absolute;
-  left: 0.3em;
-  top: 0.08em;
-  width: 0.25em;
-  height: 0.5em;
+  left: 0.33em;
+  top: 0.1em;
+  width: 0.26em;
+  height: 0.52em;
   border: solid #fff;
   border-width: 0 2px 2px 0;
   transform: rotate(45deg);
 }
 .wmd-task-done {
-  color: var(--muted);
+  color: var(--faint);
   text-decoration: line-through;
+  text-decoration-color: color-mix(in srgb, var(--fg) 30%, transparent);
+}
+.wmd-ol-mark {
+  color: var(--accent);
+}
+
+/* ---------- 引用:带色块的卡片 ---------- */
+.cm-line.wmd-quote {
+  --q: color-mix(in srgb, var(--fg) 26%, var(--bg));
+  border-left: 3px solid var(--q);
+  padding-left: 16px !important;
+  padding-right: 14px !important;
+  background: var(--surface);
+  color: color-mix(in srgb, var(--fg) 72%, var(--bg));
+}
+.cm-line.wmd-quote-first {
+  padding-top: 8px !important;
+  border-top-right-radius: var(--radius);
+}
+.cm-line.wmd-quote-last {
+  padding-bottom: 8px !important;
+  border-bottom-right-radius: var(--radius);
+}
+/* GitHub 提示块 */
+.cm-line.wmd-callout {
+  color: var(--text);
+  background: color-mix(in srgb, var(--q) 7%, var(--bg));
+}
+.cm-line.wmd-callout-note {
+  --q: #2f81f7;
+}
+.cm-line.wmd-callout-tip {
+  --q: #2da44e;
+}
+.cm-line.wmd-callout-important {
+  --q: #8250df;
+}
+.cm-line.wmd-callout-warning {
+  --q: #d4a72c;
+}
+.cm-line.wmd-callout-caution {
+  --q: #e5484d;
+}
+.wmd-callout-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--q);
+  font-weight: 700;
+  font-size: 0.95em;
 }
 .wmd-hr {
   display: inline-block;
   width: 100%;
-  height: 0;
+  height: 1px;
   vertical-align: middle;
-  border-top: 1px solid var(--border);
+  background: linear-gradient(90deg, transparent, var(--line) 12%, var(--line) 88%, transparent);
 }
 
-/* ---------- 代码块 ---------- */
+/* ---------- 代码块:圆角卡片 ---------- */
 .cm-line.wmd-code {
   font-family: var(--md-code-font);
-  font-size: 0.86em;
-  line-height: 1.6;
-  background: var(--code-bg);
-  padding: 0 18px !important;
+  font-size: 0.85em;
+  line-height: 1.65;
+  background: var(--surface);
+  border-left: 1px solid var(--hair);
+  border-right: 1px solid var(--hair);
+  padding: 0 20px !important;
+  color: var(--fg);
 }
 .cm-line.wmd-code-first {
-  border-radius: 10px 10px 0 0;
-  padding-top: 8px !important;
+  border-top: 1px solid var(--hair);
+  border-radius: var(--radius) var(--radius) 0 0;
+  padding-top: 6px !important;
 }
 .cm-line.wmd-code-last {
-  border-radius: 0 0 10px 10px;
+  border-bottom: 1px solid var(--hair);
+  border-radius: 0 0 var(--radius) var(--radius);
   padding-bottom: 8px !important;
 }
 .cm-line.wmd-code-fence-hidden {
-  height: 12px;
+  height: 14px;
   overflow: hidden;
   padding: 0 !important;
 }
@@ -371,46 +502,55 @@ body,
   justify-content: space-between;
   align-items: center;
   font-family: var(--ui-font);
-  font-size: 11.5px;
-  color: var(--muted);
+  font-size: 11px;
+  color: var(--faint);
 }
 .wmd-code-lang {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--muted);
+  font-weight: 600;
+  letter-spacing: 0.03em;
   text-transform: lowercase;
-  letter-spacing: 0.02em;
 }
 .wmd-code-copy {
-  border: none;
-  background: transparent;
+  border: 1px solid var(--hair);
+  background: var(--bg);
   color: var(--muted);
   font: inherit;
   cursor: pointer;
-  padding: 0 4px;
-  border-radius: 5px;
+  padding: 1px 8px;
+  border-radius: 6px;
   opacity: 0;
+  transition: opacity 0.12s;
 }
 .cm-line:hover .wmd-code-copy {
   opacity: 1;
 }
 .wmd-code-copy:hover {
-  background: var(--hover);
+  color: var(--heading);
 }
 .wmd-empty {
   display: inline-block;
 }
 
-/* 代码高亮(classHighlighter 产生的 tok-* 类) */
+/* 代码高亮(classHighlighter 产生的 tok-* 类):GitHub 风格配色 */
 .wmd-code .tok-keyword,
 .wmd-code .tok-operatorKeyword,
-.wmd-code .tok-controlKeyword {
+.wmd-code .tok-controlKeyword,
+.wmd-code .tok-modifier {
   color: #cf222e;
 }
 .wmd-code .tok-string,
-.wmd-code .tok-string2 {
+.wmd-code .tok-string2,
+.wmd-code .tok-regexp {
   color: #0a3069;
 }
 .wmd-code .tok-number,
 .wmd-code .tok-bool,
-.wmd-code .tok-atom {
+.wmd-code .tok-atom,
+.wmd-code .tok-propertyName {
   color: #0550ae;
 }
 .wmd-code .tok-comment {
@@ -419,45 +559,57 @@ body,
 }
 .wmd-code .tok-variableName.tok-definition,
 .wmd-code .tok-function,
-.wmd-code .tok-propertyName.tok-definition {
+.wmd-code .tok-propertyName.tok-definition,
+.wmd-code .tok-macroName {
   color: #8250df;
 }
 .wmd-code .tok-typeName,
-.wmd-code .tok-className {
+.wmd-code .tok-className,
+.wmd-code .tok-namespace {
   color: #953800;
 }
-.wmd-code .tok-propertyName {
+.wmd-code .tok-tagName {
+  color: #116329;
+}
+.wmd-code .tok-attributeName {
   color: #0550ae;
 }
 body.vscode-dark .wmd-code .tok-keyword,
-body.vscode-high-contrast .wmd-code .tok-keyword,
-body.vscode-dark .wmd-code .tok-keyword {
+body.vscode-dark .wmd-code .tok-operatorKeyword,
+body.vscode-dark .wmd-code .tok-controlKeyword,
+body.vscode-dark .wmd-code .tok-modifier,
+body.vscode-high-contrast .wmd-code .tok-keyword {
   color: #ff7b72;
 }
 body.vscode-dark .wmd-code .tok-string,
 body.vscode-dark .wmd-code .tok-string2,
+body.vscode-dark .wmd-code .tok-regexp,
 body.vscode-high-contrast .wmd-code .tok-string,
 body.vscode-high-contrast .wmd-code .tok-string2 {
   color: #a5d6ff;
 }
 body.vscode-dark .wmd-code .tok-number,
+body.vscode-dark .wmd-code .tok-bool,
+body.vscode-dark .wmd-code .tok-atom,
 body.vscode-dark .wmd-code .tok-propertyName,
-body.vscode-dark .wmd-code .tok-number {
+body.vscode-dark .wmd-code .tok-attributeName {
   color: #79c0ff;
 }
-body.vscode-dark .wmd-code .tok-comment,
 body.vscode-dark .wmd-code .tok-comment {
   color: #8b949e;
 }
 body.vscode-dark .wmd-code .tok-function,
 body.vscode-dark .wmd-code .tok-variableName.tok-definition,
-body.vscode-dark .wmd-code .tok-function {
+body.vscode-dark .wmd-code .tok-macroName {
   color: #d2a8ff;
 }
 body.vscode-dark .wmd-code .tok-typeName,
 body.vscode-dark .wmd-code .tok-className,
-body.vscode-dark .wmd-code .tok-typeName {
+body.vscode-dark .wmd-code .tok-namespace {
   color: #ffa657;
+}
+body.vscode-dark .wmd-code .tok-tagName {
+  color: #7ee787;
 }
 
 /* ---------- 图片 ---------- */
@@ -465,26 +617,28 @@ body.vscode-dark .wmd-code .tok-typeName {
   display: inline-block;
   max-width: 100%;
   vertical-align: top;
-  margin: 0.3em 0;
+  margin: 0.45em 0;
+  text-indent: 0;
 }
 .wmd-image img {
   display: block;
   max-width: 100%;
-  max-height: 70vh;
-  border-radius: 8px;
+  max-height: 72vh;
+  border-radius: var(--radius);
+  box-shadow: 0 0 0 1px var(--hair), 0 8px 24px -14px rgba(0, 0, 0, 0.35);
   cursor: pointer;
 }
 .wmd-image-block {
   display: block;
-  padding: 4px 0 10px;
+  padding: 4px 0 12px;
 }
 .wmd-image-block img {
-  opacity: 0.92;
+  opacity: 0.9;
 }
 .wmd-image-broken {
-  padding: 6px 10px;
-  border: 1px dashed var(--border);
-  border-radius: 8px;
+  padding: 8px 12px;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
   color: var(--muted);
   font-size: 0.85em;
   font-family: var(--ui-font);
@@ -494,7 +648,7 @@ body.vscode-dark .wmd-code .tok-typeName {
   padding: 2px 10px;
   margin: 0 4px;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  background: var(--accent-soft);
   color: var(--accent);
   font: 500 12px var(--ui-font);
   animation: wmd-pulse 1.2s ease-in-out infinite;
@@ -505,58 +659,94 @@ body.vscode-dark .wmd-code .tok-typeName {
   }
 }
 
-/* ---------- 表格 / 公式 / Mermaid / front matter ---------- */
+/* ---------- 表格:圆角外框 + 表头底色 + 斑马纹 ---------- */
 .wmd-table {
   overflow-x: auto;
-  padding: 6px 0;
+  padding: 8px 0 10px;
   cursor: text;
 }
 .wmd-table table {
-  border-collapse: collapse;
-  font-size: 0.94em;
-  line-height: 1.5;
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: 50%;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  font-size: 0.93em;
+  line-height: 1.55;
 }
 .wmd-table th,
 .wmd-table td {
-  border: 1px solid var(--border);
-  padding: 6px 14px;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--hair);
+  border-right: 1px solid var(--hair);
+  text-align: left;
+}
+.wmd-table th:last-child,
+.wmd-table td:last-child {
+  border-right: none;
+}
+.wmd-table tr:last-child td {
+  border-bottom: none;
 }
 .wmd-table th {
-  background: var(--block-bg);
-  font-weight: 600;
+  background: var(--surface-2);
+  color: var(--heading);
+  font-weight: 650;
+  border-bottom-color: var(--line);
+}
+.wmd-table tbody tr:nth-child(even) td {
+  background: var(--surface);
+}
+.wmd-table tbody tr:hover td {
+  background: var(--accent-soft);
 }
 .wmd-table code {
   font-family: var(--md-code-font);
   font-size: 0.88em;
-  padding: 0.1em 0.35em;
-  border-radius: 4px;
-  background: var(--code-bg);
+  padding: 0.1em 0.38em;
+  border-radius: 5px;
+  color: var(--code-ink);
+  background: var(--code-ink-bg);
+}
+.wmd-table strong {
+  color: var(--heading);
 }
 .wmd-table img {
   max-height: 120px;
   vertical-align: middle;
+  border-radius: 6px;
 }
 .wmd-table a {
   color: var(--link);
 }
 .cm-line.wmd-table-src {
   font-family: var(--md-code-font);
-  font-size: 0.88em;
+  font-size: 0.86em;
   white-space: pre;
+  color: var(--muted);
 }
+
+/* ---------- 公式 / Mermaid / front matter ---------- */
 .wmd-math-block {
-  padding: 8px 0;
+  padding: 10px 0;
   overflow-x: auto;
   text-align: center;
+  color: var(--heading);
   cursor: text;
 }
 .wmd-math-inline {
+  color: var(--heading);
   cursor: text;
 }
 .wmd-mermaid {
   display: flex;
   justify-content: center;
-  padding: 12px 0;
+  margin: 6px 0;
+  padding: 18px 12px;
+  border: 1px solid var(--hair);
+  border-radius: var(--radius);
+  background: var(--surface);
   color: var(--muted);
   font: 12px var(--ui-font);
   cursor: text;
@@ -572,37 +762,41 @@ body.vscode-dark .wmd-code .tok-typeName {
   text-align: left;
 }
 .wmd-frontmatter {
-  margin: 4px 0 12px;
-  padding: 10px 14px;
-  border-radius: 10px;
-  background: var(--block-bg);
+  margin: 2px 0 14px;
+  padding: 12px 16px;
+  border: 1px solid var(--hair);
+  border-radius: var(--radius);
+  background: var(--surface);
   font-family: var(--ui-font);
-  font-size: 0.82em;
-  line-height: 1.7;
+  font-size: 0.8em;
+  line-height: 1.75;
   cursor: text;
 }
 .wmd-fm-title {
-  margin-bottom: 4px;
-  font-size: 0.85em;
+  margin-bottom: 6px;
+  font-size: 0.82em;
   font-weight: 700;
-  color: var(--muted);
-  letter-spacing: 0.04em;
+  color: var(--faint);
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 .wmd-fm-row {
   display: flex;
-  gap: 14px;
+  gap: 16px;
 }
 .wmd-fm-key {
-  min-width: 90px;
+  min-width: 96px;
   color: var(--muted);
+}
+.wmd-fm-val {
+  color: var(--heading);
 }
 .wmd-fm-raw {
   color: var(--muted);
 }
 .cm-line.wmd-fm-src {
   font-family: var(--md-code-font);
-  font-size: 0.86em;
+  font-size: 0.85em;
   color: var(--muted);
 }
 
@@ -775,4 +969,11 @@ body.vscode-dark .wmd-source .tok-monospace {
 }
 .wmd-root[data-mode="read"] .wmd-link {
   cursor: pointer;
+}
+/* 去掉 Mermaid 节点自带的模糊投影 */
+.wmd-mermaid svg [filter],
+.wmd-mermaid svg .node rect,
+.wmd-mermaid svg .node polygon,
+.wmd-mermaid svg .node circle {
+  filter: none !important;
 }
