@@ -1,0 +1,83 @@
+const zh = {
+  imageMissing: "图片加载失败",
+  copy: "复制",
+  copied: "已复制",
+  rendering: "渲染中…",
+  properties: "属性",
+  uploading: "📷 图片保存中…",
+  outline: "大纲",
+  noHeadings: "还没有标题",
+  typography: "字体与排版",
+  fontSize: "字号",
+  followEditor: "跟随编辑器",
+  font: "正文字体",
+  headingFont: "标题字体",
+  sameAsBody: "同正文",
+  lineHeight: "行高",
+  width: "正文宽度",
+  full: "铺满",
+  spacing: "段落间距",
+  saveUser: "保存到用户设置",
+  saveWorkspace: "保存到工作区",
+  reset: "恢复默认",
+  sans: "无衬线",
+  serif: "衬线",
+  mono: "等宽",
+  editorFont: "编辑器字体",
+  custom: "自定义…",
+  customPrompt: "输入字体名称或字体栈,例如 \"LXGW WenKai\", serif",
+  export: "导出",
+  exportHtml: "导出 HTML",
+  exportPdf: "导出 PDF",
+  revealImage: "在访达中显示",
+  copyImagePath: "复制图片路径",
+  deleteImage: "删除图片文件和链接",
+  openLink: "⌘ + 点击打开链接",
+};
+
+type Key = keyof typeof zh;
+
+const en: Record<Key, string> = {
+  imageMissing: "Image failed to load",
+  copy: "Copy",
+  copied: "Copied",
+  rendering: "Rendering…",
+  properties: "Properties",
+  uploading: "📷 Saving image…",
+  outline: "Outline",
+  noHeadings: "No headings yet",
+  typography: "Typography",
+  fontSize: "Size",
+  followEditor: "Follow editor",
+  font: "Body font",
+  headingFont: "Heading font",
+  sameAsBody: "Same as body",
+  lineHeight: "Line height",
+  width: "Text width",
+  full: "Full",
+  spacing: "Paragraph gap",
+  saveUser: "Save to user settings",
+  saveWorkspace: "Save to workspace",
+  reset: "Reset",
+  sans: "Sans",
+  serif: "Serif",
+  mono: "Mono",
+  editorFont: "Editor font",
+  custom: "Custom…",
+  customPrompt: 'Font name or stack, e.g. "LXGW WenKai", serif',
+  export: "Export",
+  exportHtml: "Export HTML",
+  exportPdf: "Export PDF",
+  revealImage: "Reveal in File Explorer",
+  copyImagePath: "Copy image path",
+  deleteImage: "Delete image file and link",
+  openLink: "Cmd + click to open",
+};
+
+let dict: Record<Key, string> = zh;
+export function setLang(lang: string) {
+  dict = lang.toLowerCase().startsWith("zh") ? zh : en;
+}
+export function t(key: Key): string {
+  return dict[key];
+}

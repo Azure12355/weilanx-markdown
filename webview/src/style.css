@@ -1,0 +1,743 @@
+/* 颜色全部取自 VS Code 主题变量,浏览器预览时用后备值;字号、字体、行高、宽度来自 typography.ts 设置的 --md-* 变量 */
+:root {
+  --md-font-size: 15px;
+  --md-font: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --md-heading-font: var(--md-font);
+  --md-code-font: Menlo, monospace;
+  --md-line-height: 1.75;
+  --md-max-width: 860px;
+  --md-blank: 0.8em;
+
+  --bg: var(--vscode-editor-background, #ffffff);
+  --fg: var(--vscode-editor-foreground, #1f2328);
+  --muted: var(--vscode-descriptionForeground, #6b7079);
+  --faint: color-mix(in srgb, var(--fg) 38%, transparent);
+  --link: var(--vscode-textLink-foreground, #2f6feb);
+  --accent: var(--vscode-focusBorder, #2f7bff);
+  --border: var(--vscode-panel-border, var(--vscode-widget-border, rgba(128, 128, 128, 0.25)));
+  --code-bg: var(--vscode-textCodeBlock-background, color-mix(in srgb, var(--fg) 6%, var(--bg)));
+  --block-bg: color-mix(in srgb, var(--fg) 4.5%, var(--bg));
+  --quote: var(--vscode-textBlockQuote-border, color-mix(in srgb, var(--fg) 22%, transparent));
+  --sel: var(--vscode-editor-selectionBackground, rgba(47, 123, 255, 0.22));
+  --cursor: var(--vscode-editorCursor-foreground, var(--fg));
+  --pop: var(--vscode-editorWidget-background, var(--bg));
+  --hover: var(--vscode-toolbar-hoverBackground, rgba(128, 128, 128, 0.15));
+  --ui-font: var(--vscode-font-family, -apple-system, "PingFang SC", sans-serif);
+}
+html,
+body,
+#app {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--fg);
+}
+* {
+  box-sizing: border-box;
+}
+
+.wmd-root {
+  display: flex;
+  height: 100%;
+}
+.wmd-main {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+}
+.wmd-editor,
+.wmd-editor .cm-editor {
+  height: 100%;
+}
+.cm-editor {
+  background: var(--bg);
+  color: var(--fg);
+  font-size: var(--md-font-size);
+}
+.cm-editor.cm-focused {
+  outline: none;
+}
+.cm-scroller {
+  font-family: var(--md-font);
+  line-height: var(--md-line-height);
+  overflow: auto;
+}
+/* CodeMirror 在运行时注入自己的基础样式,这里多加一层类名保证优先级 */
+.wmd-root .wmd-editor .cm-content {
+  flex: 1 1 auto;
+  width: 100%;
+  max-width: var(--md-max-width);
+  margin: 0 auto;
+  padding: 56px 56px 40vh;
+  caret-color: var(--cursor);
+}
+.cm-line {
+  padding: 0;
+}
+.cm-cursor {
+  border-left-color: var(--cursor);
+  border-left-width: 2px;
+}
+.cm-selectionBackground,
+.cm-focused .cm-selectionBackground,
+.cm-content ::selection {
+  background: var(--sel) !important;
+}
+
+/* ---------- 工具栏 ---------- */
+.wmd-toolbar {
+  position: absolute;
+  top: 10px;
+  right: 16px;
+  z-index: 10;
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--bg) 85%, transparent);
+  backdrop-filter: blur(6px);
+  opacity: 0.55;
+  transition: opacity 0.15s;
+}
+.wmd-toolbar:hover {
+  opacity: 1;
+}
+.wmd-tb {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 30px;
+  height: 28px;
+  padding: 0 7px;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--fg);
+  font: 600 13px var(--ui-font);
+  cursor: pointer;
+}
+.wmd-tb:hover {
+  background: var(--hover);
+}
+.wmd-tb-aa {
+  font-family: Georgia, "Songti SC", serif;
+  font-size: 14px;
+}
+
+/* ---------- 大纲 ---------- */
+.wmd-outline {
+  display: none;
+  width: 230px;
+  flex-shrink: 0;
+  height: 100%;
+  overflow-y: auto;
+  padding: 20px 10px 40px 14px;
+  border-right: 1px solid var(--border);
+  font-family: var(--ui-font);
+  font-size: 12.5px;
+}
+.wmd-outline-open .wmd-outline {
+  display: block;
+}
+.wmd-outline-title {
+  margin: 0 0 10px 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.wmd-outline-item {
+  display: block;
+  padding: 4px 8px;
+  border-radius: 6px;
+  color: var(--muted);
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-decoration: none;
+}
+.wmd-outline-item:hover {
+  background: var(--hover);
+  color: var(--fg);
+}
+.wmd-outline-item.active {
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+.wmd-outline-item.lv1 {
+  font-weight: 600;
+  color: var(--fg);
+}
+.wmd-outline-item.lv2 {
+  padding-left: 18px;
+}
+.wmd-outline-item.lv3 {
+  padding-left: 30px;
+}
+.wmd-outline-item.lv4,
+.wmd-outline-item.lv5,
+.wmd-outline-item.lv6 {
+  padding-left: 42px;
+}
+.wmd-outline-empty {
+  padding: 6px 8px;
+  color: var(--muted);
+}
+
+/* ---------- 标题 ---------- */
+.wmd-h {
+  font-family: var(--md-heading-font);
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+.wmd-h1 {
+  font-size: 1.95em;
+  padding-top: 0.5em;
+  padding-bottom: 0.15em;
+}
+.wmd-h2 {
+  font-size: 1.5em;
+  padding-top: 0.6em;
+  padding-bottom: 0.1em;
+}
+.wmd-h3 {
+  font-size: 1.25em;
+  padding-top: 0.5em;
+}
+.wmd-h4 {
+  font-size: 1.1em;
+  padding-top: 0.4em;
+}
+.wmd-h5,
+.wmd-h6 {
+  font-size: 1em;
+  padding-top: 0.3em;
+}
+.wmd-h6 {
+  color: var(--muted);
+}
+.wmd-h .tok-heading,
+.tok-heading {
+  font-weight: 700;
+}
+.wmd-collapsed {
+  height: 0.4em;
+  overflow: hidden;
+  line-height: 0.4em;
+}
+
+/* ---------- 行内 ---------- */
+.tok-strong {
+  font-weight: 700;
+}
+.tok-emphasis {
+  font-style: italic;
+}
+.wmd-strike,
+.tok-strikethrough {
+  text-decoration: line-through;
+  color: var(--muted);
+}
+.tok-meta,
+.tok-processingInstruction {
+  color: var(--faint);
+}
+.wmd-inline-code {
+  font-family: var(--md-code-font);
+  font-size: 0.88em;
+  padding: 0.12em 0.38em;
+  border-radius: 5px;
+  background: var(--code-bg);
+}
+.wmd-link {
+  color: var(--link);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--link) 40%, transparent);
+  text-underline-offset: 3px;
+  cursor: text;
+}
+.cm-content:has(.wmd-link:hover) .wmd-link:hover {
+  text-decoration-color: var(--link);
+}
+.wmd-link-src,
+.tok-url,
+.tok-link {
+  color: var(--link);
+}
+.wmd-html {
+  color: var(--faint);
+}
+.wmd-math-src {
+  font-family: var(--md-code-font);
+  font-size: 0.92em;
+  color: var(--muted);
+}
+
+/* ---------- 段落间距 ---------- */
+.cm-line.wmd-blank {
+  line-height: var(--md-blank);
+}
+
+/* ---------- 引用 / 列表 / 分割线 ---------- */
+.wmd-quote {
+  border-left: 3px solid var(--quote);
+  padding-left: 14px !important;
+  color: var(--muted);
+}
+.wmd-bullet {
+  display: inline-block;
+  width: 1em;
+  color: var(--muted);
+  font-weight: 700;
+}
+.wmd-ol-mark {
+  color: var(--muted);
+}
+.wmd-checkbox {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  margin-right: 0.45em;
+  vertical-align: -0.15em;
+  border: 1.6px solid var(--muted);
+  border-radius: 4px;
+  cursor: pointer;
+  position: relative;
+}
+.wmd-checkbox.wmd-checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.wmd-checkbox.wmd-checked::after {
+  content: "";
+  position: absolute;
+  left: 0.3em;
+  top: 0.08em;
+  width: 0.25em;
+  height: 0.5em;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+.wmd-task-done {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+.wmd-hr {
+  display: inline-block;
+  width: 100%;
+  height: 0;
+  vertical-align: middle;
+  border-top: 1px solid var(--border);
+}
+
+/* ---------- 代码块 ---------- */
+.cm-line.wmd-code {
+  font-family: var(--md-code-font);
+  font-size: 0.86em;
+  line-height: 1.6;
+  background: var(--code-bg);
+  padding: 0 18px !important;
+}
+.cm-line.wmd-code-first {
+  border-radius: 10px 10px 0 0;
+  padding-top: 8px !important;
+}
+.cm-line.wmd-code-last {
+  border-radius: 0 0 10px 10px;
+  padding-bottom: 8px !important;
+}
+.cm-line.wmd-code-fence-hidden {
+  height: 12px;
+  overflow: hidden;
+  padding: 0 !important;
+}
+.wmd-code-header {
+  display: inline-flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--ui-font);
+  font-size: 11.5px;
+  color: var(--muted);
+}
+.wmd-code-lang {
+  text-transform: lowercase;
+  letter-spacing: 0.02em;
+}
+.wmd-code-copy {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  cursor: pointer;
+  padding: 0 4px;
+  border-radius: 5px;
+  opacity: 0;
+}
+.cm-line:hover .wmd-code-copy {
+  opacity: 1;
+}
+.wmd-code-copy:hover {
+  background: var(--hover);
+}
+.wmd-empty {
+  display: inline-block;
+}
+
+/* 代码高亮(classHighlighter 产生的 tok-* 类) */
+.wmd-code .tok-keyword,
+.wmd-code .tok-operatorKeyword,
+.wmd-code .tok-controlKeyword {
+  color: #cf222e;
+}
+.wmd-code .tok-string,
+.wmd-code .tok-string2 {
+  color: #0a3069;
+}
+.wmd-code .tok-number,
+.wmd-code .tok-bool,
+.wmd-code .tok-atom {
+  color: #0550ae;
+}
+.wmd-code .tok-comment {
+  color: #6e7781;
+  font-style: italic;
+}
+.wmd-code .tok-variableName.tok-definition,
+.wmd-code .tok-function,
+.wmd-code .tok-propertyName.tok-definition {
+  color: #8250df;
+}
+.wmd-code .tok-typeName,
+.wmd-code .tok-className {
+  color: #953800;
+}
+.wmd-code .tok-propertyName {
+  color: #0550ae;
+}
+body.vscode-dark .wmd-code .tok-keyword,
+body.vscode-high-contrast .wmd-code .tok-keyword,
+body.vscode-dark .wmd-code .tok-keyword {
+  color: #ff7b72;
+}
+body.vscode-dark .wmd-code .tok-string,
+body.vscode-dark .wmd-code .tok-string2,
+body.vscode-high-contrast .wmd-code .tok-string,
+body.vscode-high-contrast .wmd-code .tok-string2 {
+  color: #a5d6ff;
+}
+body.vscode-dark .wmd-code .tok-number,
+body.vscode-dark .wmd-code .tok-propertyName,
+body.vscode-dark .wmd-code .tok-number {
+  color: #79c0ff;
+}
+body.vscode-dark .wmd-code .tok-comment,
+body.vscode-dark .wmd-code .tok-comment {
+  color: #8b949e;
+}
+body.vscode-dark .wmd-code .tok-function,
+body.vscode-dark .wmd-code .tok-variableName.tok-definition,
+body.vscode-dark .wmd-code .tok-function {
+  color: #d2a8ff;
+}
+body.vscode-dark .wmd-code .tok-typeName,
+body.vscode-dark .wmd-code .tok-className,
+body.vscode-dark .wmd-code .tok-typeName {
+  color: #ffa657;
+}
+
+/* ---------- 图片 ---------- */
+.wmd-image {
+  display: inline-block;
+  max-width: 100%;
+  vertical-align: top;
+  margin: 0.3em 0;
+}
+.wmd-image img {
+  display: block;
+  max-width: 100%;
+  max-height: 70vh;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.wmd-image-block {
+  display: block;
+  padding: 4px 0 10px;
+}
+.wmd-image-block img {
+  opacity: 0.92;
+}
+.wmd-image-broken {
+  padding: 6px 10px;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  color: var(--muted);
+  font-size: 0.85em;
+  font-family: var(--ui-font);
+}
+.wmd-pending {
+  display: inline-block;
+  padding: 2px 10px;
+  margin: 0 4px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  color: var(--accent);
+  font: 500 12px var(--ui-font);
+  animation: wmd-pulse 1.2s ease-in-out infinite;
+}
+@keyframes wmd-pulse {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+/* ---------- 表格 / 公式 / Mermaid / front matter ---------- */
+.wmd-table {
+  overflow-x: auto;
+  padding: 6px 0;
+  cursor: text;
+}
+.wmd-table table {
+  border-collapse: collapse;
+  font-size: 0.94em;
+  line-height: 1.5;
+}
+.wmd-table th,
+.wmd-table td {
+  border: 1px solid var(--border);
+  padding: 6px 14px;
+}
+.wmd-table th {
+  background: var(--block-bg);
+  font-weight: 600;
+}
+.wmd-table code {
+  font-family: var(--md-code-font);
+  font-size: 0.88em;
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  background: var(--code-bg);
+}
+.wmd-table img {
+  max-height: 120px;
+  vertical-align: middle;
+}
+.wmd-table a {
+  color: var(--link);
+}
+.cm-line.wmd-table-src {
+  font-family: var(--md-code-font);
+  font-size: 0.88em;
+  white-space: pre;
+}
+.wmd-math-block {
+  padding: 8px 0;
+  overflow-x: auto;
+  text-align: center;
+  cursor: text;
+}
+.wmd-math-inline {
+  cursor: text;
+}
+.wmd-mermaid {
+  display: flex;
+  justify-content: center;
+  padding: 12px 0;
+  color: var(--muted);
+  font: 12px var(--ui-font);
+  cursor: text;
+}
+.wmd-mermaid svg {
+  max-width: 100%;
+  height: auto;
+}
+.wmd-error {
+  color: #e5484d;
+  font: 12px var(--md-code-font);
+  white-space: pre-wrap;
+  text-align: left;
+}
+.wmd-frontmatter {
+  margin: 4px 0 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: var(--block-bg);
+  font-family: var(--ui-font);
+  font-size: 0.82em;
+  line-height: 1.7;
+  cursor: text;
+}
+.wmd-fm-title {
+  margin-bottom: 4px;
+  font-size: 0.85em;
+  font-weight: 700;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.wmd-fm-row {
+  display: flex;
+  gap: 14px;
+}
+.wmd-fm-key {
+  min-width: 90px;
+  color: var(--muted);
+}
+.wmd-fm-raw {
+  color: var(--muted);
+}
+.cm-line.wmd-fm-src {
+  font-family: var(--md-code-font);
+  font-size: 0.86em;
+  color: var(--muted);
+}
+
+/* ---------- 弹出菜单 / 面板 ---------- */
+.wmd-menu,
+.wmd-panel {
+  position: fixed;
+  z-index: 100;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--pop);
+  color: var(--fg);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+  font: 13px var(--ui-font);
+}
+.wmd-menu {
+  display: flex;
+  flex-direction: column;
+  min-width: 180px;
+  padding: 5px;
+}
+.wmd-menu button {
+  padding: 7px 10px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.wmd-menu button:hover {
+  background: var(--hover);
+}
+.wmd-menu button.danger {
+  color: #e5484d;
+}
+.wmd-panel {
+  width: 340px;
+  padding: 14px 16px 12px;
+}
+.wmd-p-title {
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+.wmd-p-row {
+  display: grid;
+  grid-template-columns: 70px 1fr;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.wmd-p-label {
+  color: var(--muted);
+  font-size: 12px;
+}
+.wmd-p-size {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.wmd-p-size button,
+.wmd-p-seg button,
+.wmd-p-actions button {
+  border: 1px solid var(--border);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  border-radius: 7px;
+  cursor: pointer;
+}
+.wmd-p-size button {
+  width: 26px;
+  height: 26px;
+}
+.wmd-p-val {
+  min-width: 42px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+}
+.wmd-p-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--muted);
+}
+.wmd-p-font {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.wmd-p-seg {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.wmd-p-seg button {
+  padding: 3px 8px;
+  font-size: 12px;
+}
+.wmd-p-seg button.on {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+.wmd-p-input {
+  width: 100%;
+  padding: 5px 8px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--vscode-input-background, transparent);
+  color: inherit;
+  font: 12px var(--ui-font);
+}
+.wmd-p-input.on {
+  border-color: var(--accent);
+}
+.wmd-p-slider {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.wmd-p-slider input {
+  flex: 1;
+  accent-color: var(--accent);
+}
+.wmd-p-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.wmd-p-actions button {
+  padding: 5px 10px;
+  font-size: 12px;
+}
+.wmd-p-primary {
+  background: var(--vscode-button-background, #2f7bff) !important;
+  color: var(--vscode-button-foreground, #fff) !important;
+  border-color: transparent !important;
+}

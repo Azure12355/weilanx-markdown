@@ -1,0 +1,17 @@
+.vscode/**
+src/**
+webview/**
+test/**
+docs/**
+node_modules/**
+**/*.ts
+**/*.map
+tsconfig*.json
+vite.config.ts
+.gitignore
+.playwright-cli/**
+.claude/**
+*.vsix
+media/readme/**
+media/logo.svg
+README.zh-CN.md

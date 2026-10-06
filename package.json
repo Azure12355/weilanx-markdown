@@ -1,0 +1,408 @@
+{
+  "name": "weilanx-markdown",
+  "displayName": "%displayName%",
+  "description": "%description%",
+  "version": "0.1.0",
+  "publisher": "weilanx",
+  "icon": "media/logo.png",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Azure12355/weilanx-markdown.git"
+  },
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "markdown",
+    "live preview",
+    "wysiwyg",
+    "paste image",
+    "typora",
+    "obsidian"
+  ],
+  "main": "./out/extension.js",
+  "activationEvents": [],
+  "contributes": {
+    "customEditors": [
+      {
+        "viewType": "weilanxMarkdown.editor",
+        "displayName": "%customEditor.displayName%",
+        "selector": [
+          {
+            "filenamePattern": "*.md"
+          },
+          {
+            "filenamePattern": "*.markdown"
+          }
+        ],
+        "priority": "default"
+      }
+    ],
+    "commands": [
+      {
+        "command": "weilanxMarkdown.undo",
+        "title": "%command.undo%",
+        "category": "Weilanx Markdown"
+      },
+      {
+        "command": "weilanxMarkdown.redo",
+        "title": "%command.redo%",
+        "category": "Weilanx Markdown"
+      },
+      {
+        "command": "weilanxMarkdown.bold",
+        "title": "%command.bold%",
+        "category": "Weilanx Markdown"
+      },
+      {
+        "command": "weilanxMarkdown.italic",
+        "title": "%command.italic%",
+        "category": "Weilanx Markdown"
+      },
+      {
+        "command": "weilanxMarkdown.link",
+        "title": "%command.link%",
+        "category": "Weilanx Markdown"
+      },
+      {
+        "command": "weilanxMarkdown.zoomIn",
+        "title": "%command.zoomIn%",
+        "category": "Weilanx Markdown"
+      },
+      {
+        "command": "weilanxMarkdown.zoomOut",
+        "title": "%command.zoomOut%",
+        "category": "Weilanx Markdown"
+      },
+      {
+        "command": "weilanxMarkdown.zoomReset",
+        "title": "%command.zoomReset%",
+        "category": "Weilanx Markdown"
+      },
+      {
+        "command": "weilanxMarkdown.exportHtml",
+        "title": "%command.exportHtml%",
+        "category": "Weilanx Markdown",
+        "icon": "$(file-code)"
+      },
+      {
+        "command": "weilanxMarkdown.exportPdf",
+        "title": "%command.exportPdf%",
+        "category": "Weilanx Markdown",
+        "icon": "$(file-pdf)"
+      },
+      {
+        "command": "weilanxMarkdown.toggleOutline",
+        "title": "%command.toggleOutline%",
+        "category": "Weilanx Markdown",
+        "icon": "$(list-tree)"
+      },
+      {
+        "command": "weilanxMarkdown.formatTable",
+        "title": "%command.formatTable%",
+        "category": "Weilanx Markdown"
+      },
+      {
+        "command": "weilanxMarkdown.openAsText",
+        "title": "%command.openAsText%",
+        "category": "Weilanx Markdown",
+        "icon": "$(go-to-file)"
+      },
+      {
+        "command": "weilanxMarkdown.openAsLivePreview",
+        "title": "%command.openAsLivePreview%",
+        "category": "Weilanx Markdown",
+        "icon": "$(open-preview)"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "weilanxMarkdown.undo",
+        "key": "ctrl+z",
+        "mac": "cmd+z",
+        "when": "activeCustomEditorId == 'weilanxMarkdown.editor' && !sideBarFocus && !panelFocus && !auxiliaryBarFocus && !inQuickOpen"
+      },
+      {
+        "command": "weilanxMarkdown.redo",
+        "key": "ctrl+y",
+        "mac": "cmd+shift+z",
+        "when": "activeCustomEditorId == 'weilanxMarkdown.editor' && !sideBarFocus && !panelFocus && !auxiliaryBarFocus && !inQuickOpen"
+      },
+      {
+        "command": "weilanxMarkdown.redo",
+        "key": "ctrl+shift+z",
+        "mac": "cmd+y",
+        "when": "activeCustomEditorId == 'weilanxMarkdown.editor' && !sideBarFocus && !panelFocus && !auxiliaryBarFocus && !inQuickOpen"
+      },
+      {
+        "command": "weilanxMarkdown.bold",
+        "key": "ctrl+b",
+        "mac": "cmd+b",
+        "when": "activeCustomEditorId == 'weilanxMarkdown.editor' && !sideBarFocus && !panelFocus && !auxiliaryBarFocus && !inQuickOpen"
+      },
+      {
+        "command": "weilanxMarkdown.italic",
+        "key": "ctrl+i",
+        "mac": "cmd+i",
+        "when": "activeCustomEditorId == 'weilanxMarkdown.editor' && !sideBarFocus && !panelFocus && !auxiliaryBarFocus && !inQuickOpen"
+      },
+      {
+        "command": "weilanxMarkdown.link",
+        "key": "ctrl+k",
+        "mac": "cmd+k",
+        "when": "activeCustomEditorId == 'weilanxMarkdown.editor' && !sideBarFocus && !panelFocus && !auxiliaryBarFocus && !inQuickOpen"
+      },
+      {
+        "command": "weilanxMarkdown.zoomIn",
+        "key": "ctrl+alt+=",
+        "mac": "cmd+alt+=",
+        "when": "activeCustomEditorId == 'weilanxMarkdown.editor' && !sideBarFocus && !panelFocus && !auxiliaryBarFocus && !inQuickOpen"
+      },
+      {
+        "command": "weilanxMarkdown.zoomOut",
+        "key": "ctrl+alt+-",
+        "mac": "cmd+alt+-",
+        "when": "activeCustomEditorId == 'weilanxMarkdown.editor' && !sideBarFocus && !panelFocus && !auxiliaryBarFocus && !inQuickOpen"
+      },
+      {
+        "command": "weilanxMarkdown.zoomReset",
+        "key": "ctrl+alt+0",
+        "mac": "cmd+alt+0",
+        "when": "activeCustomEditorId == 'weilanxMarkdown.editor' && !sideBarFocus && !panelFocus && !auxiliaryBarFocus && !inQuickOpen"
+      },
+      {
+        "command": "weilanxMarkdown.toggleOutline",
+        "key": "ctrl+alt+o",
+        "mac": "cmd+alt+o",
+        "when": "activeCustomEditorId == 'weilanxMarkdown.editor' && !sideBarFocus && !panelFocus && !auxiliaryBarFocus && !inQuickOpen"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "weilanxMarkdown.toggleOutline",
+          "when": "activeCustomEditorId == 'weilanxMarkdown.editor'",
+          "group": "navigation@1"
+        },
+        {
+          "command": "weilanxMarkdown.openAsText",
+          "when": "activeCustomEditorId == 'weilanxMarkdown.editor'",
+          "group": "navigation@2"
+        },
+        {
+          "command": "weilanxMarkdown.openAsLivePreview",
+          "when": "resourceLangId == markdown && activeEditor == workbench.editors.files.textFileEditor",
+          "group": "navigation"
+        },
+        {
+          "command": "weilanxMarkdown.exportHtml",
+          "when": "activeCustomEditorId == 'weilanxMarkdown.editor'",
+          "group": "1_export@1"
+        },
+        {
+          "command": "weilanxMarkdown.exportPdf",
+          "when": "activeCustomEditorId == 'weilanxMarkdown.editor'",
+          "group": "1_export@2"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "weilanxMarkdown.undo",
+          "when": "activeCustomEditorId == 'weilanxMarkdown.editor'"
+        },
+        {
+          "command": "weilanxMarkdown.redo",
+          "when": "activeCustomEditorId == 'weilanxMarkdown.editor'"
+        },
+        {
+          "command": "weilanxMarkdown.bold",
+          "when": "activeCustomEditorId == 'weilanxMarkdown.editor'"
+        },
+        {
+          "command": "weilanxMarkdown.italic",
+          "when": "activeCustomEditorId == 'weilanxMarkdown.editor'"
+        },
+        {
+          "command": "weilanxMarkdown.link",
+          "when": "activeCustomEditorId == 'weilanxMarkdown.editor'"
+        },
+        {
+          "command": "weilanxMarkdown.zoomIn",
+          "when": "activeCustomEditorId == 'weilanxMarkdown.editor'"
+        },
+        {
+          "command": "weilanxMarkdown.zoomOut",
+          "when": "activeCustomEditorId == 'weilanxMarkdown.editor'"
+        },
+        {
+          "command": "weilanxMarkdown.zoomReset",
+          "when": "activeCustomEditorId == 'weilanxMarkdown.editor'"
+        },
+        {
+          "command": "weilanxMarkdown.exportHtml",
+          "when": "activeCustomEditorId == 'weilanxMarkdown.editor'"
+        },
+        {
+          "command": "weilanxMarkdown.exportPdf",
+          "when": "activeCustomEditorId == 'weilanxMarkdown.editor'"
+        },
+        {
+          "command": "weilanxMarkdown.toggleOutline",
+          "when": "activeCustomEditorId == 'weilanxMarkdown.editor'"
+        },
+        {
+          "command": "weilanxMarkdown.formatTable",
+          "when": "activeCustomEditorId == 'weilanxMarkdown.editor'"
+        },
+        {
+          "command": "weilanxMarkdown.openAsText",
+          "when": "activeCustomEditorId == 'weilanxMarkdown.editor'"
+        },
+        {
+          "command": "weilanxMarkdown.openAsLivePreview",
+          "when": "resourceLangId == markdown"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Weilanx Markdown",
+      "properties": {
+        "weilanxMarkdown.image.path": {
+          "type": "string",
+          "default": "assets/${fileName}/${date}-${time}.${ext}",
+          "markdownDescription": "%config.image.path%",
+          "scope": "resource"
+        },
+        "weilanxMarkdown.image.linkStyle": {
+          "type": "string",
+          "default": "relative",
+          "markdownDescription": "%config.image.linkStyle%",
+          "enum": [
+            "relative",
+            "workspaceRoot"
+          ],
+          "enumDescriptions": [
+            "%config.image.linkStyle.relative%",
+            "%config.image.linkStyle.workspaceRoot%"
+          ],
+          "scope": "resource"
+        },
+        "weilanxMarkdown.image.altText": {
+          "type": "string",
+          "default": "fileName",
+          "markdownDescription": "%config.image.altText%",
+          "enum": [
+            "empty",
+            "fileName",
+            "prompt"
+          ],
+          "enumDescriptions": [
+            "%config.image.altText.empty%",
+            "%config.image.altText.fileName%",
+            "%config.image.altText.prompt%"
+          ],
+          "scope": "resource"
+        },
+        "weilanxMarkdown.image.downloadRemote": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "%config.image.downloadRemote%",
+          "scope": "resource"
+        },
+        "weilanxMarkdown.font.size": {
+          "type": "number",
+          "default": 0,
+          "markdownDescription": "%config.font.size%",
+          "minimum": 0,
+          "maximum": 48,
+          "scope": "resource"
+        },
+        "weilanxMarkdown.font.family": {
+          "type": "string",
+          "default": "sans",
+          "markdownDescription": "%config.font.family%",
+          "scope": "resource"
+        },
+        "weilanxMarkdown.font.headingFamily": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "%config.font.headingFamily%",
+          "scope": "resource"
+        },
+        "weilanxMarkdown.font.codeFamily": {
+          "type": "string",
+          "default": "editor",
+          "markdownDescription": "%config.font.codeFamily%",
+          "scope": "resource"
+        },
+        "weilanxMarkdown.layout.lineHeight": {
+          "type": "number",
+          "default": 1.75,
+          "markdownDescription": "%config.layout.lineHeight%",
+          "minimum": 1,
+          "maximum": 3,
+          "scope": "resource"
+        },
+        "weilanxMarkdown.layout.maxWidth": {
+          "type": "number",
+          "default": 860,
+          "markdownDescription": "%config.layout.maxWidth%",
+          "minimum": 0,
+          "scope": "resource"
+        },
+        "weilanxMarkdown.layout.paragraphSpacing": {
+          "type": "number",
+          "default": 0.8,
+          "markdownDescription": "%config.layout.paragraphSpacing%",
+          "minimum": 0,
+          "maximum": 3,
+          "scope": "resource"
+        },
+        "weilanxMarkdown.export.browserPath": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "%config.export.browserPath%",
+          "scope": "machine"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build:ext": "esbuild src/vscode/extension.ts --bundle --outfile=out/extension.js --external:vscode --format=cjs --platform=node",
+    "build:web": "vite build",
+    "build": "npm run build:web && npm run build:ext",
+    "dev:web": "vite",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p webview/tsconfig.json",
+    "test": "node --test --import tsx test/*.test.ts",
+    "package": "npm run build && npx --yes @vscode/vsce package --no-dependencies -o weilanx-markdown.vsix"
+  },
+  "devDependencies": {
+    "@types/katex": "^0.16.8",
+    "@types/markdown-it": "^14.2.0",
+    "@types/node": "^22.20.5",
+    "@types/vscode": "^1.90.0",
+    "esbuild": "^0.24.2",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3",
+    "vite": "^6.4.4"
+  },
+  "dependencies": {
+    "@codemirror/commands": "^6.11.1",
+    "@codemirror/lang-markdown": "^6.5.2",
+    "@codemirror/language": "^6.12.4",
+    "@codemirror/language-data": "^6.5.2",
+    "@codemirror/state": "^6.7.6",
+    "@codemirror/view": "^6.43.13",
+    "@lezer/common": "^1.5.3",
+    "@lezer/highlight": "^1.2.5",
+    "@lezer/markdown": "^1.7.2",
+    "@vscode/markdown-it-katex": "^1.1.2",
+    "katex": "^0.19.0",
+    "markdown-it": "^15.0.2",
+    "mermaid": "^12.1.0"
+  }
+}
