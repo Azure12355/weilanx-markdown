@@ -119,6 +119,7 @@ function createView(text: string) {
         syncListener(),
         EditorView.updateListener.of((u) => {
           if (u.docChanged) scheduleOutline();
+          if (u.selectionSet || u.docChanged) scheduleSelection(u.view);
         }),
         EditorView.domEventHandlers({
           mousedown: onMouseDown,
@@ -131,6 +132,20 @@ function createView(text: string) {
   initOutline(document.getElementById("outline")!, view);
   // 浏览器预览模式下给测试脚本用
   if (!inVsCode) Object.assign(window, { __wmdView: view, __wmdUndo: () => undo(view) });
+}
+
+let selTimer = 0;
+let lastSel = "";
+/** 选区变化告诉扩展端(给底栏字数统计),去抖并去重 */
+function scheduleSelection(v: EditorView) {
+  clearTimeout(selTimer);
+  selTimer = window.setTimeout(() => {
+    const ranges = v.state.selection.ranges.filter((r) => !r.empty).map((r) => [r.from, r.to] as [number, number]);
+    const key = JSON.stringify(ranges);
+    if (key === lastSel) return;
+    lastSel = key;
+    host.post({ type: "selection", ranges });
+  }, 120);
 }
 
 /** ⌘ / Ctrl + 点击链接打开;点击渲染好的块(表格、公式、图表)时把光标放进源码 */

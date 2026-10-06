@@ -99,3 +99,40 @@ test("列表:重新编号保留起始号,懒编号不动", () => {
   assert.deepEqual(renumberBlock(["1. a", "1. b", "1. c"], 0), ["1. a", "1. b", "1. c"]);
   assert.deepEqual(renumberBlock(["1. a", "", "段落", "", "5. b"], 4), ["1. a", "", "段落", "", "5. b"]);
 });
+
+import { computeStats, countText, durationSeconds, formatDuration, toPlain } from "../src/core/stats";
+
+test("统计:中文按字、英文按词,去掉 Markdown 标记和代码块", () => {
+  const md = "---\ntitle: x\n---\n# 我封了 5 个 Claude 号\n\n不是因为**我**干了什么。[链接文字](https://a.com)\n\n```js\nconst a = 1;\n```\n\n![图](a.png)\n\n- 列表 item one\n";
+  const s = computeStats(md);
+  // 中文:我封了个号 5 + 不是因为我干了什么 9 + 链接文字 4 + 列表 2 = 20;英文:5 Claude item one = 4
+  assert.equal(s.cjk, 20);
+  assert.equal(s.latinWords, 4);
+  assert.equal(s.words, 24);
+  assert.equal(s.headings, 1);
+  assert.equal(s.codeBlocks, 1);
+  assert.equal(s.images, 1);
+  assert.equal(s.links, 1);
+  assert.equal(s.paragraphs, 3);
+  assert.doesNotMatch(toPlain(md).text, /const|https|\*\*|#|title/);
+});
+
+test("统计:字符数、句子数、X 加权、表格", () => {
+  const c = countText("你好 world。Hi!");
+  // 你好(2) + world(5) + 。(1) + Hi(2) + !(1)
+  assert.equal(c.chars, 11);
+  assert.equal(c.charsWithSpaces, 12);
+  assert.equal(c.sentences, 2);
+  // X 计数:中文和全角标点各 2,其余 1
+  assert.equal(c.xWeighted, 2 + 2 + 1 + 5 + 2 + 2 + 1);
+  const t = computeStats("| 功能 | 状态 |\n| --- | --- |\n| 粘贴 | 完成 |\n");
+  assert.equal(t.tables, 1);
+  assert.equal(t.cjk, 8);
+});
+
+test("统计:时长估算与格式", () => {
+  assert.equal(durationSeconds({ cjk: 260, latinWords: 0 }, 260, 150), 60);
+  assert.equal(durationSeconds({ cjk: 0, latinWords: 75 }, 260, 150), 30);
+  assert.equal(formatDuration(90), "1:30");
+  assert.equal(formatDuration(3725), "1:02:05");
+});

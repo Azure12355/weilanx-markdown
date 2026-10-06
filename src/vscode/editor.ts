@@ -9,6 +9,7 @@ import { imageSettings, resolveLocal, saveBytes, useFile, useRemote } from "./im
 import { readClipboardImage } from "./clipboard";
 import { findBrowser, printToPdf, siblingPath } from "./exportPdf";
 import { t } from "./i18n";
+import { StatsBar } from "./statusBar";
 
 export type ViewCommand = Extract<ToView, { type: "command" }>["command"];
 
@@ -63,6 +64,8 @@ export class MarkdownController {
 
   /** 正在应用 webview 发来的修改:期间收到的文档变化是自己引起的,不回推 */
   private applyingOwn = false;
+  /** webview 里的选区(字符偏移),给底栏字数统计用 */
+  private selections: [number, number][] = [];
   private queue: Promise<void> = Promise.resolve();
 
   constructor(
@@ -103,17 +106,19 @@ export class MarkdownController {
       subs
     );
 
-    if (panel.active) MarkdownController.active = this;
-    panel.onDidChangeViewState(
-      (e) => {
-        if (e.webviewPanel.active) MarkdownController.active = this;
-        else if (MarkdownController.active === this) MarkdownController.active = undefined;
-      },
-      null,
-      subs
-    );
+    const activate = () => {
+      MarkdownController.active = this;
+      StatsBar.instance?.setCustomSource(() => (MarkdownController.active === this ? { document, selections: this.selections } : null));
+    };
+    const deactivate = () => {
+      if (MarkdownController.active !== this) return;
+      MarkdownController.active = undefined;
+      StatsBar.instance?.setCustomSource(null);
+    };
+    if (panel.active) activate();
+    panel.onDidChangeViewState((e) => (e.webviewPanel.active ? activate() : deactivate()), null, subs);
     panel.onDidDispose(() => {
-      if (MarkdownController.active === this) MarkdownController.active = undefined;
+      deactivate();
       subs.forEach((d) => d.dispose());
     });
   }
@@ -172,6 +177,10 @@ export class MarkdownController {
         return;
       case "notify":
         vscode.window.showInformationMessage(m.message);
+        return;
+      case "selection":
+        this.selections = m.ranges;
+        StatsBar.instance?.schedule();
         return;
     }
   }

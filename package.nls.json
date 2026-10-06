@@ -40,5 +40,12 @@
   "config.defaultMode": "Mode used when a Markdown file is opened",
   "config.defaultMode.live": "Edit: live preview",
   "config.defaultMode.read": "Locked: read-only, fully rendered",
-  "config.defaultMode.source": "Source"
+  "config.defaultMode.source": "Source",
+  "command.showStats": "Show Word Count",
+  "config.stats.enabled": "Show Markdown word count in the status bar (words, characters, speaking and reading time)",
+  "config.stats.speakingRate": "Speaking rate: CJK characters per minute",
+  "config.stats.speakingWordsPerMinute": "Speaking rate: English words per minute",
+  "config.stats.readingRate": "Reading speed: CJK characters per minute",
+  "config.stats.readingWordsPerMinute": "Reading speed: English words per minute",
+  "config.stats.platforms": "Platform length limits. `unit`: `chars` (no spaces), `words`, or `x` (X / Twitter weighting, CJK counts as 2)"
 }

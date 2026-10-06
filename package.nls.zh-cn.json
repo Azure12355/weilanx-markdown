@@ -40,5 +40,12 @@
   "config.defaultMode": "打开 Markdown 文件时的默认模式",
   "config.defaultMode.live": "编辑:实时预览",
   "config.defaultMode.read": "锁定:只读,全部渲染",
-  "config.defaultMode.source": "源码"
+  "config.defaultMode.source": "源码",
+  "command.showStats": "查看字数统计",
+  "config.stats.enabled": "在底栏显示 Markdown 字数统计(字数、字符数、口播时长、阅读时长)",
+  "config.stats.speakingRate": "口播语速:每分钟多少个中文字",
+  "config.stats.speakingWordsPerMinute": "口播语速:每分钟多少个英文单词",
+  "config.stats.readingRate": "阅读速度:每分钟多少个中文字",
+  "config.stats.readingWordsPerMinute": "阅读速度:每分钟多少个英文单词",
+  "config.stats.platforms": "平台字数上限对照。`unit`:`chars` 字符(不含空白)、`words` 字数、`x` 按 X / Twitter 规则(中文和全角符号计 2)"
 }

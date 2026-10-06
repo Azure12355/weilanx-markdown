@@ -25,7 +25,9 @@
     "obsidian"
   ],
   "main": "./out/extension.js",
-  "activationEvents": [],
+  "activationEvents": [
+    "onLanguage:markdown"
+  ],
   "contributes": {
     "customEditors": [
       {
@@ -136,6 +138,11 @@
       {
         "command": "weilanxMarkdown.modeSource",
         "title": "%command.modeSource%",
+        "category": "Weilanx Markdown"
+      },
+      {
+        "command": "weilanxMarkdown.showStats",
+        "title": "%command.showStats%",
         "category": "Weilanx Markdown"
       }
     ],
@@ -425,6 +432,90 @@
           ],
           "markdownDescription": "%config.defaultMode%",
           "scope": "resource"
+        },
+        "weilanxMarkdown.stats.enabled": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "%config.stats.enabled%"
+        },
+        "weilanxMarkdown.stats.speakingRate": {
+          "type": "number",
+          "default": 260,
+          "minimum": 60,
+          "maximum": 600,
+          "markdownDescription": "%config.stats.speakingRate%"
+        },
+        "weilanxMarkdown.stats.speakingWordsPerMinute": {
+          "type": "number",
+          "default": 150,
+          "minimum": 60,
+          "maximum": 400,
+          "markdownDescription": "%config.stats.speakingWordsPerMinute%"
+        },
+        "weilanxMarkdown.stats.readingRate": {
+          "type": "number",
+          "default": 400,
+          "minimum": 100,
+          "maximum": 1500,
+          "markdownDescription": "%config.stats.readingRate%"
+        },
+        "weilanxMarkdown.stats.readingWordsPerMinute": {
+          "type": "number",
+          "default": 230,
+          "minimum": 60,
+          "maximum": 800,
+          "markdownDescription": "%config.stats.readingWordsPerMinute%"
+        },
+        "weilanxMarkdown.stats.platforms": {
+          "type": "array",
+          "markdownDescription": "%config.stats.platforms%",
+          "default": [
+            {
+              "name": "小红书正文",
+              "limit": 1000,
+              "unit": "chars"
+            },
+            {
+              "name": "小红书标题",
+              "limit": 20,
+              "unit": "chars"
+            },
+            {
+              "name": "X / Twitter",
+              "limit": 280,
+              "unit": "x"
+            },
+            {
+              "name": "公众号摘要",
+              "limit": 120,
+              "unit": "chars"
+            }
+          ],
+          "items": {
+            "type": "object",
+            "required": [
+              "name",
+              "limit"
+            ],
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "limit": {
+                "type": "number",
+                "minimum": 1
+              },
+              "unit": {
+                "type": "string",
+                "enum": [
+                  "words",
+                  "chars",
+                  "x"
+                ],
+                "default": "chars"
+              }
+            }
+          }
         }
       }
     }

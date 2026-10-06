@@ -40,7 +40,8 @@ export type ToHost =
   | { type: "saveTypography"; target: "user" | "workspace"; values: Partial<TypographySettings> }
   | { type: "export"; format: "html" | "pdf"; body: string; title: string }
   | { type: "imageAction"; action: "reveal" | "copyPath" | "delete"; src: string; from: number; to: number }
-  | { type: "notify"; message: string };
+  | { type: "notify"; message: string }
+  | { type: "selection"; ranges: [number, number][] };
 
 export type ToView =
   | { type: "init"; text: string; config: ViewConfig }

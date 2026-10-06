@@ -1,7 +1,9 @@
 import * as vscode from "vscode";
 import { MarkdownController, MarkdownEditorProvider, ViewCommand } from "./editor";
+import { StatsBar } from "./statusBar";
 
 export function activate(context: vscode.ExtensionContext) {
+  new StatsBar(context);
   context.subscriptions.push(MarkdownEditorProvider.register(context));
 
   // 编辑器内的快捷键和命令:VS Code 会先按自己的快捷键处理按键,所以注册成命令再转发给编辑器
