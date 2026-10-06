@@ -51,41 +51,6 @@ body,
 .wmd-editor .cm-editor {
   height: 100%;
 }
-.cm-editor {
-  background: var(--bg);
-  color: var(--fg);
-  font-size: var(--md-font-size);
-}
-.cm-editor.cm-focused {
-  outline: none;
-}
-.cm-scroller {
-  font-family: var(--md-font);
-  line-height: var(--md-line-height);
-  overflow: auto;
-}
-/* CodeMirror 在运行时注入自己的基础样式,这里多加一层类名保证优先级 */
-.wmd-root .wmd-editor .cm-content {
-  flex: 1 1 auto;
-  width: 100%;
-  max-width: var(--md-max-width);
-  margin: 0 auto;
-  padding: 56px 56px 40vh;
-  caret-color: var(--cursor);
-}
-.cm-line {
-  padding: 0;
-}
-.cm-cursor {
-  border-left-color: var(--cursor);
-  border-left-width: 2px;
-}
-.cm-selectionBackground,
-.cm-focused .cm-selectionBackground,
-.cm-content ::selection {
-  background: var(--sel) !important;
-}
-
 /* ---------- 工具栏 ---------- */
 .wmd-toolbar {
   position: absolute;
@@ -785,14 +750,7 @@ body.vscode-dark .wmd-code .tok-typeName {
   border-color: transparent !important;
 }
 
-/* ---------- 源码模式 ---------- */
-.wmd-source .cm-scroller {
-  font-family: var(--md-code-font);
-  line-height: 1.65;
-}
-.wmd-source .cm-content {
-  font-size: 0.92em;
-}
+/* ---------- 源码模式(字体与行高在 webview/src/theme.ts) ---------- */
 .wmd-source .tok-heading {
   font-weight: 700;
   color: var(--fg);

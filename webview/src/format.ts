@@ -3,6 +3,45 @@ import { EditorSelection } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
 import { syntaxTree } from "@codemirror/language";
 import { parseAlign, splitRow } from "./live/widgets";
+import { indentItem, outdentItem, parseListLine } from "../../src/core/lists";
+
+/**
+ * 列表行上的 Tab / Shift+Tab:按列表结构缩进并重新编号。只替换真正变化的那几行,光标留在原文字处。
+ * 不在列表行上时返回 false,交给默认的缩进命令。
+ */
+function listCommand(view: EditorView, fn: (lines: string[], i: number) => string[] | null): boolean {
+  const state = view.state;
+  if (state.readOnly) return false;
+  const sel = state.selection.main;
+  const first = state.doc.lineAt(sel.from).number;
+  const last = state.doc.lineAt(sel.to).number;
+  if (!parseListLine(state.doc.line(first).text)) return false;
+  const before = state.doc.toString().split("\n");
+  let lines = before;
+  for (let n = first; n <= last; n++) {
+    if (!parseListLine(lines[n - 1])) continue;
+    lines = fn(lines, n - 1) ?? lines;
+  }
+  if (lines === before) return true; // 是列表行但没法再缩进(比如第一项):吞掉 Tab,不插入制表符
+  let a = 0;
+  while (a < lines.length && lines[a] === before[a]) a++;
+  let b = 0;
+  while (b < lines.length - a && lines[lines.length - 1 - b] === before[before.length - 1 - b]) b++;
+  const from = state.doc.line(a + 1).from;
+  const to = state.doc.line(before.length - b).to;
+  const insert = lines.slice(a, lines.length - b).join("\n");
+  // 光标:同一行内按「离行尾的距离」保持
+  const headLine = state.doc.lineAt(sel.head);
+  const fromEnd = headLine.to - sel.head;
+  view.dispatch({ changes: { from, to, insert }, userEvent: "input.indent" });
+  const nl = view.state.doc.line(headLine.number);
+  const content = nl.from + (parseListLine(nl.text)?.contentCol ?? 0);
+  view.dispatch({ selection: { anchor: Math.max(content, nl.to - fromEnd) } });
+  return true;
+}
+
+export const indentList = (v: EditorView) => listCommand(v, indentItem);
+export const outdentList = (v: EditorView) => listCommand(v, outdentItem);
 
 /** 用标记包住选区;已经包着时去掉 */
 export function toggleWrap(view: EditorView, markText: string): boolean {

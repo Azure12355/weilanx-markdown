@@ -69,3 +69,33 @@ test("导出:内嵌本地图片,保留远程图片", () => {
   assert.match(out, /src="https:\/\/x\/y.png"/);
   assert.match(wrapDocument("<p>x</p>", "<T>", "body{}"), /<title>&lt;T&gt;<\/title>/);
 });
+
+import { indentItem, outdentItem, renumberBlock, parseListLine } from "../src/core/lists";
+
+test("列表:Tab 缩进后从 1 开始,原来这一层后面的重新编号", () => {
+  const lines = ["1. 在编辑器里", "2. 没有字号", "3. 确定", "4. 确定呀", "5. 测试", "", "段落"];
+  const r = indentItem(lines, 3)!;
+  assert.deepEqual(r.slice(0, 5), ["1. 在编辑器里", "2. 没有字号", "3. 确定", "   1. 确定呀", "4. 测试"]);
+  // 再缩进一项:接着子层编号
+  const r2 = indentItem(r, 4)!;
+  assert.deepEqual(r2.slice(2, 5), ["3. 确定", "   1. 确定呀", "   2. 测试"]);
+});
+
+test("列表:Shift+Tab 反缩进接在父项后面编号", () => {
+  const lines = ["1. a", "2. b", "   1. c", "   2. d", "3. e"];
+  const r = outdentItem(lines, 2)!;
+  assert.deepEqual(r, ["1. a", "2. b", "3. c", "   1. d", "4. e"]);
+});
+
+test("列表:第一项不能缩进;子内容随之移动;无序列表保持符号", () => {
+  assert.equal(indentItem(["1. a", "2. b"], 0), null);
+  const r = indentItem(["- a", "- b", "  续行", "- c"], 1)!;
+  assert.deepEqual(r, ["- a", "  - b", "    续行", "- c"]);
+  assert.equal(parseListLine("10) x")!.contentCol, 4);
+});
+
+test("列表:重新编号保留起始号,懒编号不动", () => {
+  assert.deepEqual(renumberBlock(["3. a", "7. b", "1. c"], 0), ["3. a", "4. b", "5. c"]);
+  assert.deepEqual(renumberBlock(["1. a", "1. b", "1. c"], 0), ["1. a", "1. b", "1. c"]);
+  assert.deepEqual(renumberBlock(["1. a", "", "段落", "", "5. b"], 4), ["1. a", "", "段落", "", "5. b"]);
+});

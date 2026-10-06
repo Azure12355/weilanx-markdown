@@ -15,10 +15,11 @@ import { livePreview } from "./live/preview";
 import { mathExtension } from "./live/math";
 import { pasteHandlers, resolvePending } from "./paste";
 import { applyExternal, resetDoc, syncListener } from "./sync";
-import { formatTable, insertLink, toggleWrap } from "./format";
+import { formatTable, indentList, insertLink, outdentList, toggleWrap } from "./format";
 import { initTypography, togglePanel, zoomBy } from "./typography";
 import { initOutline, refreshOutline, scheduleOutline } from "./outline";
 import { renderForExport } from "./export";
+import { editorTheme } from "./theme";
 import type { ToView } from "../../src/core/protocol";
 
 const app = document.getElementById("app")!;
@@ -103,9 +104,16 @@ function createView(text: string) {
         indentOnInput(),
         bracketMatching(),
         EditorView.lineWrapping,
+        editorTheme,
         markdown({ base: markdownLanguage, codeLanguages: languages, extensions: [mathExtension] }),
         syntaxHighlighting(classHighlighter),
-        keymap.of([...hostKeys, ...markdownKeymap, indentWithTab, ...defaultKeymap]),
+        keymap.of([
+          ...hostKeys,
+          { key: "Tab", run: indentList, shift: outdentList },
+          ...markdownKeymap,
+          indentWithTab,
+          ...defaultKeymap,
+        ]),
         modeComp.of(modeExtensions(mode)),
         pasteHandlers(),
         syncListener(),
