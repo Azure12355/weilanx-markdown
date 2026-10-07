@@ -10,6 +10,10 @@
     "type": "git",
     "url": "https://github.com/Azure12355/weilanx-markdown.git"
   },
+  "homepage": "https://azure12355.github.io/weilanx-markdown/",
+  "bugs": {
+    "url": "https://github.com/Azure12355/weilanx-markdown/issues"
+  },
   "engines": {
     "vscode": "^1.90.0"
   },

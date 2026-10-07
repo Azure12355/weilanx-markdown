@@ -16,3 +16,6 @@ media/readme/**
 media/logo.svg
 README.zh-CN.md
 .vscode-test/**
+site/**
+scripts/**
+.github/**
