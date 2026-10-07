@@ -47,5 +47,12 @@
   "config.stats.speakingWordsPerMinute": "Speaking rate: English words per minute",
   "config.stats.readingRate": "Reading speed: CJK characters per minute",
   "config.stats.readingWordsPerMinute": "Reading speed: English words per minute",
-  "config.stats.platforms": "Platform length limits. `unit`: `chars` (no spaces), `words`, or `x` (X / Twitter weighting, CJK counts as 2)"
+  "config.stats.platforms": "Platform length limits. `unit`: `chars` (no spaces), `words`, or `x` (X / Twitter weighting, CJK counts as 2)",
+  "cmd.askAgent": "Ask Agent About Selection",
+  "cmd.askClaude": "Ask Claude Code",
+  "cmd.askCodex": "Ask Codex",
+  "cmd.copyQuote": "Copy as Quote",
+  "config.agent.default": "Agent used by `Cmd+Alt+L` (Ask Agent About Selection).",
+  "config.agent.toolbar": "Show the floating Ask Agent toolbar when you select text.",
+  "config.agent.maxQuoteLines": "Long selections keep only this many lines (half from the start, half from the end) in the quote."
 }

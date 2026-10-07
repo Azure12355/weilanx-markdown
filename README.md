@@ -70,6 +70,7 @@ Wherever the cursor isn't, `#`, `**` and link URLs fold away and you see typeset
 4. **Tools for writers**:
 
 - 📊 **Status bar word count**: words · characters · 🎙 speaking time · reading time; counts the selection when you select text; hover for paragraphs, sentences, images and platform length limits
+- 🤖 **Ask your agent about a selection**: select text, click the floating toolbar (or press `Cmd+Alt+L`), and a quote with the file path, line numbers, section and original text is pasted into the Claude Code / Codex chat box in the sidebar. Then type what you want changed
 - 🧭 Outline sidebar that follows your scroll position
 - 🧮 KaTeX math and Mermaid diagrams (theme-aware colors)
 - 📤 Export to HTML (images inlined) and PDF (via your installed Chrome / Edge)
@@ -121,6 +122,7 @@ Agents: see [`docs/install-for-agents.md`](./docs/install-for-agents.md).
 |---|---|
 | Bold / italic / link | `Cmd+B` / `Cmd+I` / `Cmd+K` |
 | Cycle mode (Locked → Edit → Source) | `Cmd+Alt+M` |
+| Send selection to your agent | `Cmd+Alt+L` |
 | Indent / outdent list item (renumbers) | `Tab` / `Shift+Tab` |
 | Zoom text in / out / reset | `Cmd+Alt+=` / `Cmd+Alt+-` / `Cmd+Alt+0` |
 | Toggle outline | `Cmd+Alt+O` |
@@ -138,6 +140,8 @@ Agents: see [`docs/install-for-agents.md`](./docs/install-for-agents.md).
 | `weilanxMarkdown.layout.lineHeight` | `1.75` | Line height |
 | `weilanxMarkdown.layout.maxWidth` | `860` | Max text width in px; `0` fills the editor |
 | `weilanxMarkdown.defaultMode` | `live` | `live` / `read` / `source` |
+| `weilanxMarkdown.agent.default` | `claude` | Agent used by `Cmd+Alt+L`: `claude` / `codex` |
+| `weilanxMarkdown.agent.toolbar` | `true` | Show the floating Ask Agent toolbar on selection |
 | `weilanxMarkdown.stats.speakingRate` | `260` | Speaking rate (CJK characters per minute) |
 | `weilanxMarkdown.stats.platforms` | Xiaohongshu / X / … | Platform length limits |
 

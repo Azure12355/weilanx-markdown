@@ -15,6 +15,11 @@ const zh = {
   copied: "已复制图片路径",
   delete: "删除",
   confirmDelete: "把「{0}」移到废纸篓,并删除文中的这张图片?",
+  agentNoSelection: "先选中一段文字",
+  agentCopied: "$(check) 引用已复制",
+  agentSent: "$(check) 已发送到 {0}，没出现的话在输入框里按 ⌘V",
+  agentMissing: "没有安装 {0} 插件",
+  agentFocusFailed: "打不开 {0} 的对话框，引用已复制，可以手动粘贴",
 };
 
 const en: typeof zh = {
@@ -32,6 +37,11 @@ const en: typeof zh = {
   copied: "Image path copied",
   delete: "Delete",
   confirmDelete: "Move “{0}” to the trash and remove the image from this note?",
+  agentNoSelection: "Select some text first",
+  agentCopied: "$(check) Quote copied",
+  agentSent: "$(check) Sent to {0}. If it doesn't appear, press Cmd+V in the chat box",
+  agentMissing: "The {0} extension isn't installed",
+  agentFocusFailed: "Couldn't open the {0} chat. The quote is on your clipboard, paste it there",
 };
 
 export function t(key: keyof typeof zh, ...args: string[]): string {

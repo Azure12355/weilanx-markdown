@@ -10,6 +10,7 @@ import { readClipboardImage } from "./clipboard";
 import { findBrowser, printToPdf, siblingPath } from "./exportPdf";
 import { t } from "./i18n";
 import { StatsBar } from "./statusBar";
+import { askAgent, installedAgents } from "./agent";
 
 export type ViewCommand = Extract<ToView, { type: "command" }>["command"];
 
@@ -118,6 +119,9 @@ export class MarkdownController {
       subs
     );
 
+    // 装上或卸载 Agent 插件后刷新浮动工具条的按钮
+    vscode.extensions.onDidChange(() => this.post({ type: "config", config: this.viewConfig() }), null, subs);
+
     MarkdownController.all.add(this);
     StatsBar.instance?.schedule();
     panel.onDidChangeViewState(() => StatsBar.instance?.schedule(), null, subs);
@@ -151,6 +155,8 @@ export class MarkdownController {
       downloadRemote: img.downloadRemote,
       docName: path.basename(uri.fsPath, path.extname(uri.fsPath)),
       defaultMode: vscode.workspace.getConfiguration("weilanxMarkdown", uri).get<"read" | "live" | "source">("defaultMode", "live"),
+      agents: installedAgents(),
+      agentToolbar: vscode.workspace.getConfiguration("weilanxMarkdown", uri).get<boolean>("agent.toolbar", true),
     };
   }
 
@@ -186,6 +192,9 @@ export class MarkdownController {
       case "selection":
         this.selections = m.ranges;
         StatsBar.instance?.schedule();
+        return;
+      case "askAgent":
+        void askAgent(this.document, m.ranges, m.agent);
         return;
     }
   }

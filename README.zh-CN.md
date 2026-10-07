@@ -70,6 +70,7 @@
 4. **写作者工具**：
 
 - 📊 **底栏字数统计**：字数 · 字符数 · 🎙 口播时长 · 阅读时长；选中文字时统计选中部分；悬停查看段落、句子、图片数，以及小红书、X、公众号摘要的字数上限对照
+- 🤖 **选中文字直接问 Agent**：选中一段，浮动工具条一点（或 `⌘⌥L`），文件路径、行号、所在章节和原文会封装成引用块，自动粘贴进侧边栏 Claude Code / Codex 的对话框，你接着写要求就行
 - 🧭 大纲侧栏，跟随滚动高亮当前章节
 - 🧮 KaTeX 公式、Mermaid 图表（配色跟随主题）
 - 📤 导出 HTML（图片内嵌）和 PDF（用系统里的 Chrome / Edge）
@@ -125,6 +126,7 @@
 |---|---|
 | 加粗 / 斜体 / 链接 | `⌘B` / `⌘I` / `⌘K` |
 | 切换模式（锁定 → 编辑 → 源码） | `⌘⌥M` |
+| 把选中内容发给 Agent | `⌘⌥L` |
 | 列表缩进 / 反缩进（自动重新编号） | `Tab` / `Shift+Tab` |
 | 临时放大 / 缩小 / 恢复正文 | `⌘⌥=` / `⌘⌥-` / `⌘⌥0` |
 | 显示 / 隐藏大纲 | `⌘⌥O` |
@@ -150,6 +152,9 @@ Windows / Linux 上把 `⌘` 换成 `Ctrl`、`⌥` 换成 `Alt`。
 | `weilanxMarkdown.defaultMode` | `live` | 打开时的模式:`live` / `read` / `source` |
 | `weilanxMarkdown.stats.speakingRate` | `260` | 口播语速(中文字 / 分钟) |
 | `weilanxMarkdown.stats.platforms` | 小红书 / X / 公众号… | 平台字数上限,`unit` 可选 `chars` / `words` / `x` |
+| `weilanxMarkdown.agent.default` | `claude` | `⌘⌥L` 发给哪个 Agent:`claude` / `codex` |
+| `weilanxMarkdown.agent.toolbar` | `true` | 选中文字时显示「问 Agent」浮动工具条 |
+| `weilanxMarkdown.agent.maxQuoteLines` | `40` | 选中内容太长时，引用里保留的行数（开头结尾各一半） |
 | `weilanxMarkdown.export.browserPath` | `""` | 导出 PDF 用的浏览器路径,空则自动查找 |
 
 所有图片和排版设置都可以写在工作区或文件夹的 `.vscode/settings.json` 里单独覆盖，比如博客目录用 `/static/...`，自媒体目录用 `assets/...`。

@@ -36,6 +36,8 @@ const zh = {
   modeRead: "锁定:只读,全部渲染",
   modeLive: "编辑:实时预览",
   modeSource: "源码",
+  copyQuote: "复制引用",
+  askAgentHint: "把选中内容连同文件路径和行号发到对话框(⌘⌥L)",
 };
 
 type Key = keyof typeof zh;
@@ -78,6 +80,8 @@ const en: Record<Key, string> = {
   modeRead: "Locked: read-only, fully rendered",
   modeLive: "Edit: live preview",
   modeSource: "Source",
+  copyQuote: "Copy quote",
+  askAgentHint: "Send the selection with its file path and line numbers to the chat (Cmd+Alt+L)",
 };
 
 let dict: Record<Key, string> = zh;

@@ -1,6 +1,8 @@
 import * as vscode from "vscode";
 import { MarkdownController, MarkdownEditorProvider, ViewCommand } from "./editor";
 import { StatsBar } from "./statusBar";
+import { askAgent, updateAgentContext } from "./agent";
+import type { AgentTarget } from "../core/protocol";
 
 export function activate(context: vscode.ExtensionContext) {
   const stats = new StatsBar(context);
@@ -29,6 +31,24 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.commands.registerCommand(id, () => MarkdownController.active?.runCommand(command)));
   }
 
+  // 选中文字 → 发给 Agent(快捷键、命令面板、右键菜单)
+  updateAgentContext();
+  context.subscriptions.push(vscode.extensions.onDidChange(updateAgentContext));
+  const ask: Record<string, AgentTarget> = {
+    "weilanxMarkdown.askAgent": "default",
+    "weilanxMarkdown.askClaude": "claude",
+    "weilanxMarkdown.askCodex": "codex",
+    "weilanxMarkdown.copyQuote": "copy",
+  };
+  for (const [id, target] of Object.entries(ask)) {
+    context.subscriptions.push(
+      vscode.commands.registerCommand(id, () => {
+        const c = MarkdownController.active;
+        if (c) return askAgent(c.document, c.selections, target);
+      })
+    );
+  }
+
   context.subscriptions.push(
     vscode.commands.registerCommand("weilanxMarkdown.openAsText", async (uri?: vscode.Uri) => {
       const target = uri ?? (vscode.window.tabGroups.activeTabGroup.activeTab?.input as { uri?: vscode.Uri } | undefined)?.uri;
@@ -47,6 +67,10 @@ export function activate(context: vscode.ExtensionContext) {
       return stats.snapshot();
     },
     activeEditor: () => !!MarkdownController.active,
+    ask: (target: AgentTarget, ranges: [number, number][]) => {
+      const c = MarkdownController.active;
+      return c ? askAgent(c.document, ranges, target) : Promise.resolve();
+    },
   };
 }
 

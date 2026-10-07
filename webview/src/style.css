@@ -249,7 +249,6 @@ body,
   font-size: 1.55em;
   padding-top: 1.05em;
   padding-bottom: 0.32em;
-  margin-bottom: 0.25em;
   border-bottom: 1px solid var(--hair);
 }
 .wmd-h3 {
@@ -742,10 +741,16 @@ body.vscode-dark .wmd-code .tok-tagName {
   color: var(--heading);
   cursor: text;
 }
+/* 块级部件的上下间距放在外层 padding 上(见 widgets.ts 的 padded) */
+.wmd-pad-mermaid {
+  padding: 6px 0;
+}
+.wmd-pad-frontmatter {
+  padding: 2px 0 14px;
+}
 .wmd-mermaid {
   display: flex;
   justify-content: center;
-  margin: 6px 0;
   padding: 18px 12px;
   border: 1px solid var(--hair);
   border-radius: var(--radius);
@@ -765,7 +770,6 @@ body.vscode-dark .wmd-code .tok-tagName {
   text-align: left;
 }
 .wmd-frontmatter {
-  margin: 2px 0 14px;
   padding: 12px 16px;
   border: 1px solid var(--hair);
   border-radius: var(--radius);
@@ -979,4 +983,63 @@ body.vscode-dark .wmd-source .tok-monospace {
 .wmd-mermaid svg .node polygon,
 .wmd-mermaid svg .node circle {
   filter: none !important;
+}
+
+/* ---------- 选中文字后的「问 Agent」浮动工具条 ---------- */
+.wmd-agentbar {
+  position: fixed;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--pop);
+  color: var(--fg);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+  font: 12.5px var(--ui-font);
+  animation: wmd-agentbar-in 0.12s ease-out;
+}
+@keyframes wmd-agentbar-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+.wmd-agentbar-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 10px;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.wmd-agentbar-btn:hover {
+  background: var(--hover);
+}
+.wmd-agentbar-btn + .wmd-agentbar-btn {
+  position: relative;
+}
+.wmd-agentbar-btn + .wmd-agentbar-btn::before {
+  content: "";
+  position: absolute;
+  left: -1px;
+  top: 7px;
+  bottom: 7px;
+  width: 1px;
+  background: var(--border);
+}
+.wmd-agent-claude svg {
+  color: #d97757;
+}
+.wmd-agent-codex svg,
+.wmd-agent-copy svg {
+  color: var(--muted);
 }

@@ -177,6 +177,17 @@ export async function renderMermaid(code: string): Promise<string> {
   return svg;
 }
 
+/**
+ * 块级部件外面再包一层,用 padding 留出上下间距。
+ * CodeMirror 量高度时不算 margin,块上有 margin 会让后面每一行的点击位置都偏掉
+ */
+function padded(el: HTMLElement, cls: string): HTMLElement {
+  const wrap = document.createElement("div");
+  wrap.className = `wmd-block-pad ${cls}`;
+  wrap.appendChild(el);
+  return wrap;
+}
+
 export class MermaidWidget extends WidgetType {
   constructor(readonly code: string, readonly pos: number) {
     super();
@@ -200,7 +211,7 @@ export class MermaidWidget extends WidgetType {
         document.querySelectorAll('[id^="dwmd-mermaid-"]').forEach((n) => n.remove());
         view.requestMeasure();
       });
-    return el;
+    return padded(el, "wmd-pad-mermaid");
   }
   ignoreEvent() {
     return false;
@@ -420,7 +431,7 @@ export class FrontMatterWidget extends WidgetType {
       }
       if (line.trim()) el.appendChild(row);
     }
-    return el;
+    return padded(el, "wmd-pad-frontmatter");
   }
   ignoreEvent() {
     return false;

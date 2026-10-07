@@ -2,7 +2,7 @@
   "name": "weilanx-markdown",
   "displayName": "%displayName%",
   "description": "%description%",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "publisher": "weilanx",
   "icon": "media/logo.png",
   "license": "MIT",
@@ -148,6 +148,26 @@
         "command": "weilanxMarkdown.showStats",
         "title": "%command.showStats%",
         "category": "Weilanx Markdown"
+      },
+      {
+        "command": "weilanxMarkdown.askAgent",
+        "title": "%cmd.askAgent%",
+        "category": "Weilanx Markdown"
+      },
+      {
+        "command": "weilanxMarkdown.askClaude",
+        "title": "%cmd.askClaude%",
+        "category": "Weilanx Markdown"
+      },
+      {
+        "command": "weilanxMarkdown.askCodex",
+        "title": "%cmd.askCodex%",
+        "category": "Weilanx Markdown"
+      },
+      {
+        "command": "weilanxMarkdown.copyQuote",
+        "title": "%cmd.copyQuote%",
+        "category": "Weilanx Markdown"
       }
     ],
     "keybindings": [
@@ -215,6 +235,12 @@
         "command": "weilanxMarkdown.cycleMode",
         "key": "ctrl+alt+m",
         "mac": "cmd+alt+m",
+        "when": "activeCustomEditorId == 'weilanxMarkdown.editor' && !sideBarFocus && !panelFocus && !auxiliaryBarFocus && !inQuickOpen"
+      },
+      {
+        "command": "weilanxMarkdown.askAgent",
+        "key": "ctrl+alt+l",
+        "mac": "cmd+alt+l",
         "when": "activeCustomEditorId == 'weilanxMarkdown.editor' && !sideBarFocus && !panelFocus && !auxiliaryBarFocus && !inQuickOpen"
       }
     ],
@@ -318,6 +344,39 @@
         {
           "command": "weilanxMarkdown.modeSource",
           "when": "activeCustomEditorId == 'weilanxMarkdown.editor'"
+        },
+        {
+          "command": "weilanxMarkdown.askAgent",
+          "when": "activeCustomEditorId == 'weilanxMarkdown.editor'"
+        },
+        {
+          "command": "weilanxMarkdown.askClaude",
+          "when": "activeCustomEditorId == 'weilanxMarkdown.editor'"
+        },
+        {
+          "command": "weilanxMarkdown.askCodex",
+          "when": "activeCustomEditorId == 'weilanxMarkdown.editor'"
+        },
+        {
+          "command": "weilanxMarkdown.copyQuote",
+          "when": "activeCustomEditorId == 'weilanxMarkdown.editor'"
+        }
+      ],
+      "webview/context": [
+        {
+          "command": "weilanxMarkdown.askClaude",
+          "when": "webviewId == 'weilanxMarkdown.editor' && weilanxMarkdown.hasClaude",
+          "group": "0_agent@1"
+        },
+        {
+          "command": "weilanxMarkdown.askCodex",
+          "when": "webviewId == 'weilanxMarkdown.editor' && weilanxMarkdown.hasCodex",
+          "group": "0_agent@2"
+        },
+        {
+          "command": "weilanxMarkdown.copyQuote",
+          "when": "webviewId == 'weilanxMarkdown.editor'",
+          "group": "0_agent@3"
         }
       ]
     },
@@ -520,6 +579,30 @@
               }
             }
           }
+        },
+        "weilanxMarkdown.agent.default": {
+          "type": "string",
+          "default": "claude",
+          "enum": [
+            "claude",
+            "codex"
+          ],
+          "enumDescriptions": [
+            "Claude Code",
+            "Codex"
+          ],
+          "markdownDescription": "%config.agent.default%"
+        },
+        "weilanxMarkdown.agent.toolbar": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "%config.agent.toolbar%"
+        },
+        "weilanxMarkdown.agent.maxQuoteLines": {
+          "type": "number",
+          "default": 40,
+          "minimum": 2,
+          "markdownDescription": "%config.agent.maxQuoteLines%"
         }
       }
     }

@@ -47,5 +47,12 @@
   "config.stats.speakingWordsPerMinute": "口播语速:每分钟多少个英文单词",
   "config.stats.readingRate": "阅读速度:每分钟多少个中文字",
   "config.stats.readingWordsPerMinute": "阅读速度:每分钟多少个英文单词",
-  "config.stats.platforms": "平台字数上限对照。`unit`:`chars` 字符(不含空白)、`words` 字数、`x` 按 X / Twitter 规则(中文和全角符号计 2)"
+  "config.stats.platforms": "平台字数上限对照。`unit`:`chars` 字符(不含空白)、`words` 字数、`x` 按 X / Twitter 规则(中文和全角符号计 2)",
+  "cmd.askAgent": "把选中内容发给 Agent",
+  "cmd.askClaude": "问 Claude Code",
+  "cmd.askCodex": "问 Codex",
+  "cmd.copyQuote": "复制为引用",
+  "config.agent.default": "`⌘⌥L`(把选中内容发给 Agent)默认发给哪个 Agent。",
+  "config.agent.toolbar": "选中文字时显示「问 Agent」浮动工具条。",
+  "config.agent.maxQuoteLines": "选中内容很长时，引用里最多保留多少行（开头和结尾各一半）。"
 }

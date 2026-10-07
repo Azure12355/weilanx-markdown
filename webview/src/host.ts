@@ -47,6 +47,8 @@ function previewHost(): Host {
     downloadRemote: false,
     docName: "preview",
     defaultMode: (new URLSearchParams(location.search).get("mode") as "read" | "live" | "source") ?? "live",
+    agents: ["claude", "codex"] as ("claude" | "codex")[],
+    agentToolbar: true,
   });
   window.__wmd = {
     text: () => text,

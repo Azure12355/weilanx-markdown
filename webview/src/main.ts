@@ -20,6 +20,7 @@ import { initTypography, togglePanel, zoomBy } from "./typography";
 import { initOutline, refreshOutline, scheduleOutline } from "./outline";
 import { renderForExport } from "./export";
 import { editorTheme } from "./theme";
+import { agentBar, hideAgentBar, initAgentBar } from "./agentBar";
 import type { ToView } from "../../src/core/protocol";
 
 const app = document.getElementById("app")!;
@@ -80,6 +81,7 @@ function setMode(m: Mode, focus = true) {
     b.setAttribute("aria-checked", String(on));
   });
   if (!view) return;
+  hideAgentBar();
   // 切换前后保持阅读位置:记住视口顶部那一行
   const top = view.lineBlockAtHeight(view.scrollDOM.scrollTop - view.documentTop + view.scrollDOM.getBoundingClientRect().top);
   view.dispatch({ effects: modeComp.reconfigure(modeExtensions(m)) });
@@ -117,6 +119,7 @@ function createView(text: string) {
         modeComp.of(modeExtensions(mode)),
         pasteHandlers(),
         syncListener(),
+        agentBar(),
         EditorView.updateListener.of((u) => {
           if (u.docChanged) scheduleOutline();
           if (u.selectionSet || u.docChanged) scheduleSelection(u.view);
@@ -263,6 +266,7 @@ btnType.onclick = () => togglePanel(btnType);
 btnExport.onclick = () => toggleExportMenu(btnExport);
 document.querySelectorAll<HTMLElement>("#mode button").forEach((b) => (b.onclick = () => setMode(b.dataset.mode as Mode)));
 if (localStorage.getItem("wmd-outline") !== "0") app.classList.add("wmd-outline-open");
+initAgentBar(() => view);
 
 function applyConfig(cfg: NonNullable<typeof env.config>) {
   env.config = cfg;

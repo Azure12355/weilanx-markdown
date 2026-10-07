@@ -136,3 +136,34 @@ test("统计:时长估算与格式", () => {
   assert.equal(formatDuration(90), "1:30");
   assert.equal(formatDuration(3725), "1:02:05");
 });
+
+import { buildQuote, sectionAt } from "../src/core/agentQuote";
+
+const article = "# 标题\n\n## 一、为什么\n\n第一段文字。\n第二行。\n\n```sh\n# 这不是标题\necho hi\n```\n\n结尾段。\n";
+
+test("引用块:路径、行号、章节、原文", () => {
+  const from = article.indexOf("第一段");
+  const to = article.indexOf("第二行。") + 4;
+  assert.equal(
+    buildQuote(article, [[from, to]], { path: "docs/a b.md", maxLines: 40, zh: true }),
+    "> 📄 `docs/a b.md` · 第 5–6 行 · 章节：一、为什么\n>\n> 第一段文字。\n> 第二行。\n\n"
+  );
+  // 单行、英文
+  const q = buildQuote(article, [[from, from + 3]], { path: "a.md", maxLines: 40, zh: false });
+  assert.equal(q, "> 📄 `a.md` · line 5 · section: 一、为什么\n>\n> 第一段\n\n");
+});
+
+test("引用块:选到下一行行首不多算一行;空行写成 >", () => {
+  const from = article.indexOf("## 一");
+  const to = article.indexOf("第一段");
+  assert.equal(buildQuote(article, [[from, to]], { path: "a.md", maxLines: 40, zh: true }), "> 📄 `a.md` · 第 3–4 行 · 章节：一、为什么\n>\n> ## 一、为什么\n\n");
+  assert.equal(buildQuote(article, [[3, 3]], { path: "a.md", maxLines: 40, zh: true }), "");
+});
+
+test("引用块:代码块里的 # 不算章节;超长选区截断", () => {
+  assert.equal(sectionAt(article, 13), "一、为什么");
+  assert.equal(sectionAt(article, 1), "标题");
+  const long = Array.from({ length: 10 }, (_, i) => `L${i + 1}`).join("\n");
+  const q = buildQuote(long, [[0, long.length]], { path: "a.md", maxLines: 4, zh: true });
+  assert.equal(q, "> 📄 `a.md` · 第 1–10 行\n>\n> L1\n> L2\n> ……（中间省略 6 行，见原文第 3–8 行）\n> L9\n> L10\n\n");
+});

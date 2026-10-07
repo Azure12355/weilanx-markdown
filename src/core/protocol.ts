@@ -16,7 +16,14 @@ export interface ViewConfig {
   docName: string;
   /** 打开时的模式:锁定 / 编辑 / 源码 */
   defaultMode: "read" | "live" | "source";
+  /** 本机装了的 Agent 插件,决定浮动工具条显示哪些按钮 */
+  agents: AgentId[];
+  agentToolbar: boolean;
 }
+
+export type AgentId = "claude" | "codex";
+/** default = 设置里的默认 Agent;copy = 只复制引用 */
+export type AgentTarget = AgentId | "copy" | "default";
 
 export interface UploadItem {
   /** 占位符 id */
@@ -41,7 +48,8 @@ export type ToHost =
   | { type: "export"; format: "html" | "pdf"; body: string; title: string }
   | { type: "imageAction"; action: "reveal" | "copyPath" | "delete"; src: string; from: number; to: number }
   | { type: "notify"; message: string }
-  | { type: "selection"; ranges: [number, number][] };
+  | { type: "selection"; ranges: [number, number][] }
+  | { type: "askAgent"; agent: AgentTarget; ranges: [number, number][] };
 
 export type ToView =
   | { type: "init"; text: string; config: ViewConfig }
